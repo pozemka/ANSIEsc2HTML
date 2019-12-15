@@ -1,0 +1,3 @@
+Implement 24-bit colors
+Consider replacing hardcoded 256-color table with generator
+Add ability to close/disable SGR parameters in any order like real terminals do
