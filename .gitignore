@@ -2,4 +2,6 @@
 CMakeLists.txt.user
 CMakeCache.txt
 Makefile
+.kate-swp
 build/
+.kdev4/
