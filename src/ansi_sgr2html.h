@@ -26,25 +26,45 @@
 #ifndef ANSI_SGR2HTML_H
 #define ANSI_SGR2HTML_H
 
+#include <deque>
+#include <stack>
+#include <string>
+#include <unordered_map>
+
 /**
  * @todo write docs
  */
 class ANSI_SGR2HTML
 {
+    typedef std::deque<unsigned int> SGRParts;
 public:
-    /**
-     * Default constructor
-     */
     ANSI_SGR2HTML();
+    ~ANSI_SGR2HTML();
+    
+    /**
+     * @brief splitSGR parses string, with ANSI escape sequences to HTML string
+     * @param raw_data string to parse
+     * @return HTML string
+     */
+    std::string parse(std::string raw_data);
 
     ANSI_SGR2HTML(const ANSI_SGR2HTML &other) = delete;
     ANSI_SGR2HTML &operator=(const ANSI_SGR2HTML &other) = delete;
-
-    /**
-     * Destructor
-     */
-    ~ANSI_SGR2HTML();
-
+    
+private:
+    SGRParts splitSGR(const std::string& data);
+    std::string processSGR(SGRParts& sgr_parts/*non const!*/);
+    std::string detectHTMLSymbol(char symbol);
+    void resetAll(std::string& out);
+    void resetForegroundColor(std::string& out);
+    void resetBackgroundColor(std::string& out);
+    void resetIntensity(std::string& out);
+    std::stack<const char*> stack_intensity;
+    std::stack<const char*> stack_italic;
+    std::stack<const char*> stack_fg_color;
+    std::stack<const char*> stack_bg_color;
+    std::unordered_map<unsigned char, const char*> colors_basic;
+    std::unordered_map<unsigned char, const char*> colors_256;
 
 
 };
