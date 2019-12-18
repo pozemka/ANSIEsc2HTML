@@ -387,6 +387,7 @@ std::string ANSI_SGR2HTML::parse(std::string raw_data)
     } while (i++ < raw_data.size());
     resetAll(out_s);                                        //closes remaining tags
     out_s.append("</body>");
+    return out_s;
 }
 
 ANSI_SGR2HTML::SGRParts ANSI_SGR2HTML::splitSGR(const std::string& data)
@@ -429,11 +430,12 @@ std::string ANSI_SGR2HTML::processSGR(SGRParts& sgr_parts/*non const!*/)
         stack_intensity.push("</b>");
     } else if (22 == sgr_code) {                            // Normal color or intensity
         resetIntensity(out);
-    } else if (30 <= sgr_code && 37 >= sgr_code) {          // foreground color from tabel
-        out.append(R"(<span style="color:)");               // TODO: как-то красивее конструировать строку. Можно использовать {fmt} или подождать С++20 с eel.is/c++draft/format. Пока сойдёт так.
+    } else if (30 <= sgr_code && 37 >= sgr_code) {          // foreground color from table
+    // TODO: возможно вернуть <font color> если будет две версии парсера и это ничего не сломает.
+        out.append(R"(<font color=")");                    // TODO: как-то красивее конструировать строку. Можно использовать {fmt} или подождать С++20 с eel.is/c++draft/format. Пока сойдёт так.
         out.append(colors_basic[sgr_code]);
         out.append(R"(">)");
-        stack_fg_color.push("</span>");
+        stack_fg_color.push("</font>");
     } else if (40 <= sgr_code && 47 >= sgr_code) {          // background color from table
         out.append(R"(<span style="background-color:)");
         out.append(colors_basic[sgr_code]);
@@ -445,13 +447,13 @@ std::string ANSI_SGR2HTML::processSGR(SGRParts& sgr_parts/*non const!*/)
         resetBackgroundColor(out);
     } else if (38 == sgr_code) {                            // foreground color
         if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit foreground color // 38:5:⟨n⟩
-            out.append(R"(<span style="color:)");
+            out.append(R"(<font color=")");
             out.append(colors_256[sgr_parts[2]]);
             out.append(R"(">)");
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
-            stack_fg_color.push("</span>");
+            stack_fg_color.push("</font>");
             // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
             //TODO

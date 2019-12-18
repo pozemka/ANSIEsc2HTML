@@ -1,3 +1,7 @@
+Fix crashes on bad SGR like:  [48;3;141m blue-pink [49m
 Implement 24-bit colors
 Consider replacing hardcoded 256-color table with generator
 Add ability to close/disable SGR parameters in any order like real terminals do
+Probably more search-friendly name then ANSI_SGR2HTML
+Consider adding stream operators << and >>
+Probably make two variants of conversion: 'Fast and compact but without any order closing' and 'Strict but slower and with bulkier output '

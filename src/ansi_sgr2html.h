@@ -65,8 +65,6 @@ private:
     std::stack<const char*> stack_bg_color;
     std::unordered_map<unsigned char, const char*> colors_basic;
     std::unordered_map<unsigned char, const char*> colors_256;
-
-
 };
 
 #endif // ANSI_SGR2HTML_H
