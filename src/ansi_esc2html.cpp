@@ -23,7 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "ansi_sgr2html.h"
+#include "ansi_esc2html.h"
 
 #include <iostream>
 #include <sstream>

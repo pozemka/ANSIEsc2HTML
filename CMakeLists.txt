@@ -4,19 +4,19 @@ project(ANSI_SGR2HTML VERSION 0.1 DESCRIPTION "Basic ANSI Select Graphic Renditi
 
 set(LIBRARY_SRCS
 #     src/ansi_sgr2html.h
-    src/ansi_sgr2html.cpp
+    src/ansi_esc2html.cpp
 )
 
-add_library(ANSI_SGR2HTML SHARED
+add_library(ANSIEsc2HTML SHARED
     "${LIBRARY_SRCS}"
 )
 
-add_library(ANSI_SGR2HTML_static STATIC
+add_library(ANSIEsc2HTML_static STATIC
     "${LIBRARY_SRCS}"
 )
 
-set_target_properties(ANSI_SGR2HTML PROPERTIES 
-    PUBLIC_HEADER src/ansi_sgr2html.h
+set_target_properties(ANSIEsc2HTML PROPERTIES 
+    PUBLIC_HEADER src/ansi_esc2html.h
     VERSION ${PROJECT_VERSION}
     SOVERSION 0
     CXX_STANDARD 17
