@@ -332,7 +332,7 @@ ANSI_SGR2HTML::~ANSI_SGR2HTML()
 
 }
 
-std::string ANSI_SGR2HTML::parse(std::string raw_data)
+std::string ANSI_SGR2HTML::simpleParse(std::string raw_data)
 {
     std::string out_s;
     std::string param_bytes_buf;
@@ -463,6 +463,8 @@ std::string ANSI_SGR2HTML::processSGR(SGRParts& sgr_parts/*non const!*/)
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
+        } else {
+            return out;
         }
     } else if (48 == sgr_code) {                            // background color
         //FIXME: если встречаются SGR с ошибкой, то всё падает. Подумать как такое обрабатывать. Наверное не обрабатывать дальше чем встретилась ошибка: [48;3;141m blue-pink [49m
@@ -483,6 +485,8 @@ std::string ANSI_SGR2HTML::processSGR(SGRParts& sgr_parts/*non const!*/)
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
+        } else {
+            return out;
         }
     } else {
         std::cerr << "unsupported SGR: " <<  sgr_code << std::endl;

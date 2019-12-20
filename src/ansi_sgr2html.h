@@ -42,11 +42,11 @@ public:
     ~ANSI_SGR2HTML();
     
     /**
-     * @brief splitSGR parses string, with ANSI escape sequences to HTML string
+     * @brief simpleParse parses string, with ANSI escape sequences to HTML string
      * @param raw_data string to parse
      * @return HTML string
      */
-    std::string parse(std::string raw_data);
+    std::string simpleParse(std::string raw_data);
 
     ANSI_SGR2HTML(const ANSI_SGR2HTML &other) = delete;
     ANSI_SGR2HTML &operator=(const ANSI_SGR2HTML &other) = delete;
@@ -63,6 +63,7 @@ private:
     std::stack<const char*> stack_italic;
     std::stack<const char*> stack_fg_color;
     std::stack<const char*> stack_bg_color;
+    //TODO: make maps static and probably const or inline or something to reduce footprint of object creation. Probably change all [] map accessors to .at()
     std::unordered_map<unsigned char, const char*> colors_basic;
     std::unordered_map<unsigned char, const char*> colors_256;
 };
