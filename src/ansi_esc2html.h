@@ -56,11 +56,12 @@ private:
     std::string processSGR(SGRParts& sgr_parts/*non const!*/);
     std::string detectHTMLSymbol(char symbol);
     void resetAll(std::string& out);
-    void resetForegroundColor(std::string& out);
-    void resetBackgroundColor(std::string& out);
-    void resetIntensity(std::string& out);
+    // template will help replace strings and chars with their wide counterparts
+    template<typename T, typename U> void resetAttribute(T attribute_stack, std::basic_string<U>& out);
     std::stack<const char*> stack_intensity;
     std::stack<const char*> stack_italic;
+    std::stack<const char*> stack_underline;
+    std::stack<const char*> stack_cross_out;
     std::stack<const char*> stack_fg_color;
     std::stack<const char*> stack_bg_color;
     //TODO: make maps static and probably const or inline or something to reduce footprint of object creation. Probably change all [] map accessors to .at()

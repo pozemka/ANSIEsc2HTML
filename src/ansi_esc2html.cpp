@@ -28,6 +28,8 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <type_traits>
+
 
 ANSI_SGR2HTML::ANSI_SGR2HTML()
 {
@@ -419,33 +421,46 @@ std::string ANSI_SGR2HTML::processSGR(SGRParts& sgr_parts/*non const!*/)
         return out;                                         //нечего парсить!
     unsigned int sgr_code = sgr_parts[0];
 
-    if (0 == sgr_code) {                                    // Reset / Normal	all attributes off
-        //TODO: выделить отдельные сбросы свойств в функции. Тут вызывать все эти функции
-        //TODO: может и установку тегов тоже выделить?
-        resetForegroundColor(out);
-        resetBackgroundColor(out);
-        resetIntensity(out);
-    } else if (1 == sgr_code) {
+    switch (sgr_code) {
+    case 0:         // Reset / Normal	all attributes off
+        resetAll(out);
+        break;
+
+    case 1:         // Bold or increased intensity
         out.append("<b>");
         stack_intensity.push("</b>");
-    } else if (22 == sgr_code) {                            // Normal color or intensity
-        resetIntensity(out);
-    } else if (30 <= sgr_code && 37 >= sgr_code) {          // foreground color from table
-    // TODO: возможно вернуть <font color> если будет две версии парсера и это ничего не сломает.
-        out.append(R"(<font color=")");                    // TODO: как-то красивее конструировать строку. Можно использовать {fmt} или подождать С++20 с eel.is/c++draft/format. Пока сойдёт так.
-        out.append(colors_basic[sgr_code]);
-        out.append(R"(">)");
-        stack_fg_color.push("</font>");
-    } else if (40 <= sgr_code && 47 >= sgr_code) {          // background color from table
-        out.append(R"(<span style="background-color:)");
-        out.append(colors_basic[sgr_code]);
-        out.append(R"(">)");
-        stack_bg_color.push("</span>");
-    } else if (39 == sgr_code) {
-        resetForegroundColor(out);
-    } else if (49 == sgr_code) {
-        resetBackgroundColor(out);
-    } else if (38 == sgr_code) {                            // foreground color
+        break;
+    case 3:         // Italic
+        out.append("<i>");
+        stack_italic.push("</i>");
+        break;
+    case 4:         // Underline
+        out.append("<u>");
+        stack_underline.push("</u>");
+        break;
+    case 9:         // Crossed-out
+        out.append("<s>");
+        stack_cross_out.push("</s>");
+        break;
+    case 22:        // Normal color or intensity
+        resetAttribute(stack_intensity, out);
+        break;
+    case 23:        // Not italic, not Fraktur
+        resetAttribute(stack_italic, out);
+        break;
+    case 24:        // Underline off
+        resetAttribute(stack_underline, out);
+        break;
+    case 29:        // Not crossed out
+        resetAttribute(stack_cross_out, out);
+        break;
+    case 39:        // Default foreground color
+        resetAttribute(stack_fg_color, out);
+        break;
+    case 49:        // Default background color
+        resetAttribute(stack_bg_color, out);
+        break;
+    case 38:        // Set foreground color
         if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit foreground color // 38:5:⟨n⟩
             out.append(R"(<font color=")");
             out.append(colors_256[sgr_parts[2]]);
@@ -466,8 +481,8 @@ std::string ANSI_SGR2HTML::processSGR(SGRParts& sgr_parts/*non const!*/)
         } else {
             return out;
         }
-    } else if (48 == sgr_code) {                            // background color
-        //FIXME: если встречаются SGR с ошибкой, то всё падает. Подумать как такое обрабатывать. Наверное не обрабатывать дальше чем встретилась ошибка: [48;3;141m blue-pink [49m
+        break;
+    case 48:        // Set background color
         if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit background color // 48:5:⟨n⟩
             out.append(R"(<span style="background-color:)");
             out.append(colors_256[sgr_parts[2]]);
@@ -488,8 +503,23 @@ std::string ANSI_SGR2HTML::processSGR(SGRParts& sgr_parts/*non const!*/)
         } else {
             return out;
         }
-    } else {
-        std::cerr << "unsupported SGR: " <<  sgr_code << std::endl;
+        break;
+
+    default:        // SGR code ranges
+        if (30 <= sgr_code && 37 >= sgr_code) {          // foreground color from table
+            // TODO: возможно вернуть <font color> если будет две версии парсера и это ничего не сломает.
+            out.append(R"(<font color=")");                    // TODO: как-то красивее конструировать строку. Можно использовать {fmt} или подождать С++20 с eel.is/c++draft/format. Пока сойдёт так.
+            out.append(colors_basic[sgr_code]);
+            out.append(R"(">)");
+            stack_fg_color.push("</font>");
+        } else if (40 <= sgr_code && 47 >= sgr_code) {          // background color from table
+            out.append(R"(<span style="background-color:)");
+            out.append(colors_basic[sgr_code]);
+            out.append(R"(">)");
+            stack_bg_color.push("</span>");
+        } else {
+            std::cerr << "Warning: unsupported SGR: " <<  sgr_code << std::endl;
+        }
     }
 
     // убираем обработанные параметры
@@ -500,10 +530,10 @@ std::string ANSI_SGR2HTML::processSGR(SGRParts& sgr_parts/*non const!*/)
         sgr_parts.pop_front();
     }                                                       // остальные параметры сами знают сколько им убирать (38 может убрать 3 или 5)
 
-    if (sgr_parts.empty())
+    if (sgr_parts.empty())                                  // Параметры кончились
         return out;                                         // Экономим вызов функции
-    out += processSGR(sgr_parts);
 
+    out += processSGR(sgr_parts);
     return out;
 }
 
@@ -529,31 +559,20 @@ std::string ANSI_SGR2HTML::detectHTMLSymbol(char symbol)
 
 void ANSI_SGR2HTML::resetAll(std::string& out)
 {
-    resetForegroundColor(out);
-    resetBackgroundColor(out);
-    resetIntensity(out);
+    resetAttribute(stack_intensity, out);
+    resetAttribute(stack_italic, out);
+    resetAttribute(stack_underline, out);
+    resetAttribute(stack_cross_out, out);
+    resetAttribute(stack_fg_color, out);
+    resetAttribute(stack_bg_color, out);
 }
 
-void ANSI_SGR2HTML::resetForegroundColor(std::string& out)
+template<typename T, typename U>
+void ANSI_SGR2HTML::resetAttribute(T attribute_stack, std::basic_string<U>& out)
 {
-    while (!stack_fg_color.empty()) {
-        out.append(stack_fg_color.top());
-        stack_fg_color.pop();
+    static_assert (std::is_same_v<T, std::stack<const U*> >, "T must be std::stack of const CharT*");
+    while (!attribute_stack.empty()) {
+        out.append(attribute_stack.top());
+        attribute_stack.pop();
     }
-}
-
-void ANSI_SGR2HTML::resetBackgroundColor(std::string& out)
-{
-    while (!stack_bg_color.empty()) {
-        out.append(stack_bg_color.top());
-        stack_bg_color.pop();
-    } 
-}
-
-void ANSI_SGR2HTML::resetIntensity(std::string& out)
-{
-    while (!stack_intensity.empty()) {
-        out.append(stack_intensity.top());
-        stack_intensity.pop();
-    }    
 }
