@@ -1,8 +1,7 @@
-Add support of more SGRs: like 4 (underline)
-Implement 24-bit colors. Main page of cheat.sh not work without it. Probably something else is missing too.
-Consider replacing hardcoded 256-color table with generator or with static hardcode. Or with generator which is check before generating is table already was filled.
-Add ability to close/disable SGR parameters in any order like real terminals do
-Better library interface.
-Consider adding stream operators << and >>
-Probably make two variants of conversion: 'Fast and compact but without any order closing' and 'Strict but slower and with bulkier output '
+Consider replacing hardcoded 256-color table with generator or with static constexpr hardcode. Or with generator which is check if table was already filled.
+
+Add ability to close/disable SGR parameters in any order like real terminals do. Slower strict version of parser Probably make two variants of conversion: 'Fast and compact but without any order closing' and 'Strict but slower and with bulkier output '
+
+Better library interface. 
+
 PIMPL?

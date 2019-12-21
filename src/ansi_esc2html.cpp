@@ -25,7 +25,9 @@
 
 #include "ansi_esc2html.h"
 
+#include <charconv>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <vector>
 #include <type_traits>
@@ -341,7 +343,7 @@ std::string ANSI_SGR2HTML::simpleParse(std::string raw_data)
     out_s.reserve(raw_data.size());
     // в итоге шрифт и фон должен настраиваться же и браться из редактора!
     //NOTE: Use apostrophes ' not quotes " inside style quotation marks!
-    out_s.append(R"(<body style="background-color:#111111;font-family:'Consolas','Droid Sans Mono',monospace;color:#eeeeee">)");
+    out_s.append(R"(<body style="background-color:#111111;font-family:'Consolas','Droid Sans Mono',monospace; color:#eeeeee; white-space:pre">)");
     size_t i = 0;
     bool ESC = false;
     bool CSI = false;
@@ -469,15 +471,18 @@ std::string ANSI_SGR2HTML::processSGR(SGRParts& sgr_parts/*non const!*/)
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             stack_fg_color.push("</font>");
-            // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
-        } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
-            //TODO
-            std::cerr << "24-bit color not supported" << std::endl;
+        } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) { // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
+            out.append(R"(<font color="#)");
+            out.append(getHexStr(sgr_parts[2]));
+            out.append(getHexStr(sgr_parts[3]));
+            out.append(getHexStr(sgr_parts[4]));
+            out.append(R"(">)");
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
+            stack_fg_color.push("</font>");
         } else {
             return out;
         }
@@ -491,15 +496,18 @@ std::string ANSI_SGR2HTML::processSGR(SGRParts& sgr_parts/*non const!*/)
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             stack_bg_color.push("</span>");
-            // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
-        } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
-            //TODO
-            std::cerr << "24-bit color not supported" << std::endl;
+        } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) { // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
+            out.append(R"(<span style="background-color:#)");
+            out.append(getHexStr(sgr_parts[2]));
+            out.append(getHexStr(sgr_parts[3]));
+            out.append(getHexStr(sgr_parts[4]));
+            out.append(R"(">)");
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
+            stack_bg_color.push("</span>");
         } else {
             return out;
         }
@@ -557,6 +565,35 @@ std::string ANSI_SGR2HTML::detectHTMLSymbol(char symbol)
     }
 }
 
+std::string ANSI_SGR2HTML::getHexStr(unsigned int num)
+{
+    /*  // too slow?
+    std::stringstream color_buf;    // avoid recreating stream every time. See https://stackoverflow.com/a/624291/149897
+    color_buf << std::hex << std::setfill('0') << std::setw(2) << num;
+    */
+
+    //based on charconv's __to_chars_16. But have leading zero. Original to_chars don't add leading zero
+    static constexpr char digits[513] =
+            "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+            "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"
+            "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f"
+            "606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f"
+            "808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f"
+            "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf"
+            "c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf"
+            "e0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff";
+
+    std::string str16(2, 0);
+
+    if(num >= 0x100)
+        return "ff";    // value out of range
+
+    auto const num2 = num * 2;
+    str16[0] = digits[num2];
+    str16[1] = digits[num2 + 1];
+    return  str16.data();
+}
+
 void ANSI_SGR2HTML::resetAll(std::string& out)
 {
     resetAttribute(stack_intensity, out);
@@ -568,7 +605,7 @@ void ANSI_SGR2HTML::resetAll(std::string& out)
 }
 
 template<typename T, typename U>
-void ANSI_SGR2HTML::resetAttribute(T attribute_stack, std::basic_string<U>& out)
+void ANSI_SGR2HTML::resetAttribute(T& attribute_stack, std::basic_string<U>& out)
 {
     static_assert (std::is_same_v<T, std::stack<const U*> >, "T must be std::stack of const CharT*");
     while (!attribute_stack.empty()) {
