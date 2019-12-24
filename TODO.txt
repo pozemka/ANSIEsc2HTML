@@ -5,3 +5,5 @@ Add ability to close/disable SGR parameters in any order like real terminals do.
 Better library interface. 
 
 PIMPL?
+
+get rid of unused includes

@@ -36,7 +36,7 @@
  */
 class ANSI_SGR2HTML
 {
-    typedef std::deque<unsigned int> SGRParts;
+    typedef std::deque<unsigned char> SGRParts;
 public:
     ANSI_SGR2HTML();
     ~ANSI_SGR2HTML();
@@ -59,15 +59,16 @@ private:
     void resetAll(std::string& out);
     // template will help replace strings and chars with their wide counterparts
     template<typename T, typename U> void resetAttribute(T& attribute_stack, std::basic_string<U>& out);
-    std::stack<const char*> stack_intensity;
-    std::stack<const char*> stack_italic;
-    std::stack<const char*> stack_underline;
-    std::stack<const char*> stack_cross_out;
-    std::stack<const char*> stack_fg_color;
-    std::stack<const char*> stack_bg_color;
-    //TODO: make maps static constexpr to reduce footprint of object creation. Probably change all [] map accessors to .at()
-    std::unordered_map<unsigned char, const char*> colors_basic;
-    std::unordered_map<unsigned char, const char*> colors_256;
+    const char* decodeColor256(unsigned char color_code);
+    const char* decodeColorBasic(unsigned char color_code);
+    std::stack<const char*> stack_intensity_;
+    std::stack<const char*> stack_italic_;
+    std::stack<const char*> stack_underline_;
+    std::stack<const char*> stack_cross_out_;
+    std::stack<const char*> stack_fg_color_;
+    std::stack<const char*> stack_bg_color_;
+    //TODO: make color tables static constexpr to reduce footprint of object creation.
+    static const std::unordered_map<unsigned char, const char*> colors_basic_; //can't constexpr maps so other trick used
 };
 
 #endif // ANSI_SGR2HTML_H
