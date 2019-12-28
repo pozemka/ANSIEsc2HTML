@@ -1,9 +1,1 @@
-Consider replacing hardcoded 256-color table with generator or with static constexpr hardcode. Or with generator which is check if table was already filled.
-
 Add ability to close/disable SGR parameters in any order like real terminals do. Slower strict version of parser Probably make two variants of conversion: 'Fast and compact but without any order closing' and 'Strict but slower and with bulkier output '
-
-Better library interface. 
-
-PIMPL?
-
-get rid of unused includes
