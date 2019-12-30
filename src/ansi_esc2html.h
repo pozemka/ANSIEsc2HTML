@@ -27,6 +27,7 @@
 #define ANSI_SGR2HTML_H
 
 #include <memory>
+#include <string>
 
 /**
  * @todo write docs
