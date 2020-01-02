@@ -4,11 +4,13 @@
 TARGET = ANSIEsc2HTML_static
 
 TEMPLATE = lib
-CONFIG += staticlib
+CONFIG *= staticlib
 
-QMAKE_CXXFLAGS += -std=c++17
+unix {
+    QMAKE_CXXFLAGS *= -std=c++17
+}
 
-CONFIG += c++17
+CONFIG *= c++17
 
 DESTDIR = $$PWD/build
 

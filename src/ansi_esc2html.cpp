@@ -25,6 +25,7 @@
 
 #include "ansi_esc2html.h"
 
+#include <array>
 #include <deque>
 #include <iostream>
 #include <sstream>
