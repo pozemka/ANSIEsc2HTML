@@ -18,12 +18,12 @@ Library to convert limited part of SGR (Select Graphic Rendition) sequence of AN
 ## Usage:
 1. include `src/ansi_esc2html.h`
 2. either 
-2. * add `src/ansi_esc2html.cpp` to your project
-2. * or link with `ansi_esc2html` library
+   * add `src/ansi_esc2html.cpp` to your project
+   * or link with `ansi_esc2html` library
 3. Example:
 ```cpp
 ANSI_SGR2HTML ansisgr2html;
-std::string ansi = "[38;5;246m Hello World! [39m";
+std::string ansi = "\x1b[48;5;141m background color \x1b[49m";
 std::string html = ansisgr2html.simpleParse(ansi);
 ```
 
