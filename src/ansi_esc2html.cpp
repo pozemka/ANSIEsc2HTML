@@ -25,6 +25,7 @@
 
 #include "ansi_esc2html.h"
 
+#include <algorithm>
 #include <array>
 #include <deque>
 #include <iostream>
@@ -36,7 +37,7 @@
 
 class ANSI_SGR2HTML::impl
 {
-    typedef std::deque<unsigned char> SGRParts;
+    using SGRParts = std::deque<unsigned char>;
 public:
     std::string simpleParse(const std::string& raw_data);
     
@@ -56,7 +57,7 @@ private:
     std::stack<const char*> stack_cross_out_;
     std::stack<const char*> stack_fg_color_;
     std::stack<const char*> stack_bg_color_;
-    //can't constexpr maps so other trick used
+    //can't constexpr maps so other trick is used
     static const std::unordered_map<unsigned char, const char*> colors_basic_;
 };
 
@@ -65,55 +66,50 @@ std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
 {
     std::string out_s;
     std::string param_bytes_buf;
-    out_s.reserve(raw_data.size());
-    // в итоге шрифт и фон должен настраиваться же и браться из редактора!
+    out_s.reserve(raw_data.size()); //very approximate reservation
     //NOTE: Use apostrophes ' not quotes " inside style quotation marks!
     out_s.append(R"(<body style="background-color:#111111;font-family:'Consolas','Droid Sans Mono',monospace; color:#eeeeee; white-space:pre">)");
-    size_t i = 0;
     bool ESC = false;
     bool CSI = false;
-    do {
-        //TODO: можно сэкономить на копировании ? или не стоит
-        char c = raw_data[i];
-        if (0x1B == c) {
+    for(const char& c : raw_data) {
+        if (0x1B == c) {                                   // ESC
             ESC = true;
             continue;
-          }
-        if (0x5B == c) {                                    // [
+        }
+        if ('[' == c) {                                    // [ 0x5B
             if (ESC) {
                 CSI = true;
-              } else {
-                  out_s.append(detectHTMLSymbol(c));
-                }
-                continue;
-          }
+            } else {
+                out_s.append(detectHTMLSymbol(c));
+            }
+            continue;
+        }
         if ('m' == c) {
-            if (CSI && ESC) {                               // конец ESC-SGR последовательности
+            if (CSI && ESC) {                               // end of ESC-SGR последовательности
                 auto sgr = splitSGR(param_bytes_buf);
                 out_s.append(processSGR(sgr));
                 param_bytes_buf.clear();
-                CSI = ESC = false;                          // конец ESC
-              } else {
-                  out_s.append(detectHTMLSymbol(c));
-                }
-                continue;
-          }
-        if (0x30 <= c && 0x3F >= c) {                       // наполнение SGR
+                CSI = ESC = false;                          // end of ESC
+            } else {
+                out_s.append(detectHTMLSymbol(c));
+            }
+            continue;
+        }
+        if (0x30 <= c && 0x3F >= c) {                       // fill SGR
             if (CSI && ESC) {
-                //                qDebug("param byte 0x%02x", c);
                 param_bytes_buf.push_back(c);
-              } else {
-                  out_s.append(detectHTMLSymbol(c));
-                }
-                continue;
-          }
-        if (0x0a == c) {                                    // LF
-            //TODO: а что насчёт CR и CRLF?
+            } else { //0x30-0x3f are valid cahracters '0'-'?'
+                out_s.append(detectHTMLSymbol(c));
+            }
+            continue;
+        }
+        if ('\n' == c) {                                    // LF 0x0a
+            //FIXME: what about CR and CRLF sequence?
             out_s.append("<br />");
             continue;
-          }
+        }
         out_s.append(detectHTMLSymbol(c));                  //default
-      } while (i++ < raw_data.size());
+    }
     resetAll(out_s);                                        //closes remaining tags
     out_s.append("</body>");
     return out_s;
@@ -124,18 +120,17 @@ ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(const std::string& d
 {
     SGRParts sgr_parts;
     std::stringstream split_buf;
-    unsigned int sgr_param = 0;                             // If char used here stringstream >> extract symbols not as numbers, so used int
-    for(size_t i = 0; i < data.size(); ++i) {
-        const char* c = &data[i];                           // экономим на спичках :)
-        if(';' == *c) {                                     // разделитель
+    unsigned int sgr_param = 0;                             // If char type used here stringstream >> extract as symbols not as numbers, so int type used
+    for(const char& c : data) {
+        if(';' == c) {                                     // splitter
             split_buf >> sgr_param;
-            // charconv (C++17) будет менее удобен т.к. наполняется по одному символу. то же с to_string()
+            // charconv (C++17) is a little less convinient because chars extracted one by one. Same with to_string()
             sgr_parts.push_back(static_cast<unsigned char>(sgr_param));
             split_buf.clear();                              // unsets failbit if any
-          } else {
-              split_buf << *c;
-            }
-      }
+        } else {
+            split_buf << c;
+        }
+    }
     split_buf >> sgr_param;
     sgr_parts.push_back(static_cast<unsigned char>(sgr_param));
     return sgr_parts;
@@ -144,53 +139,55 @@ ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(const std::string& d
 
 std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
 {
-    std::string out;                                        // наверное, нет смысла резервировать размер. ОН будет меняться лишь 1-3 раза за функцию.
+    std::string out;                                        // Think about reservation
 
     if (sgr_parts.empty())
-    return out;                                         //нечего парсить!
+        return out;                                         // Nothing to parse
     unsigned char sgr_code = sgr_parts[0];
 
     switch (sgr_code) {
-        case 0:                                                 // Reset / Normal	all attributes off
+    case 0:                                                 // Reset / Normal	all attributes off
         resetAll(out);
-            break;
+        break;
 
-        case 1:                                                 // Bold or increased intensity
+    case 1:                                                 // Bold or increased intensity
         out.append("<b>");
         stack_intensity_.push("</b>");
-            break;
-        case 3:                                                 // Italic
+        break;
+    case 3:                                                 // Italic
         out.append("<i>");
         stack_italic_.push("</i>");
-            break;
-        case 4:                                                 // Underline
+        break;
+    case 4:                                                 // Underline
         out.append("<u>");
         stack_underline_.push("</u>");
-            break;
-        case 9:                                                 // Crossed-out
+        break;
+    case 9:                                                 // Crossed-out
         out.append("<s>");
         stack_cross_out_.push("</s>");
-            break;
-        case 22:                                                // Normal color or intensity
+        break;
+    case 22:                                                // Normal color or intensity
         resetAttribute(stack_intensity_, out);
-            break;
-        case 23:                                                // Not italic, not Fraktur
+        break;
+    case 23:                                                // Not italic, not Fraktur
         resetAttribute(stack_italic_, out);
-            break;
-        case 24:                                                // Underline off
+        break;
+    case 24:                                                // Underline off
         resetAttribute(stack_underline_, out);
-            break;
-        case 29:                                                // Not crossed out
+        break;
+    case 29:                                                // Not crossed out
         resetAttribute(stack_cross_out_, out);
-            break;
-        case 39:                                                // Default foreground color
+        break;
+    case 39:                                                // Default foreground color
         resetAttribute(stack_fg_color_, out);
-            break;
-        case 49:                                                // Default background color
+        break;
+    case 49:                                                // Default background color
         resetAttribute(stack_bg_color_, out);
-            break;
-        case 38:                                                // Set foreground color
+        break;
+    case 38:                                                // Set foreground color
         if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit foreground color // 38:5:⟨n⟩
+            // OPTIMIZATION: combine multiple appends? Will it be faster at cost of worse code readability
+            // OPTIMIZATION: foreground and background cases are very similar. Extract them as function?
             out.append(R"(<font color=")");
             out.append(decodeColor256(sgr_parts[2]));
             out.append(R"(">)");
@@ -198,24 +195,24 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             stack_fg_color_.push("</font>");
-          // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
-          } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
-              out.append(R"(<font color="#)");
-              out.append(getHexStr(sgr_parts[2]));
-              out.append(getHexStr(sgr_parts[3]));
-              out.append(getHexStr(sgr_parts[4]));
-              out.append(R"(">)");
-              sgr_parts.pop_front();
-              sgr_parts.pop_front();
-              sgr_parts.pop_front();
-              sgr_parts.pop_front();
-              sgr_parts.pop_front();
-              stack_fg_color_.push("</font>");
-            } else {
-                return out;
-              }
-            break;
-        case 48:                                                // Set background color
+            // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
+        } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
+            out.append(R"(<font color="#)");
+            out.append(getHexStr(sgr_parts[2]));
+            out.append(getHexStr(sgr_parts[3]));
+            out.append(getHexStr(sgr_parts[4]));
+            out.append(R"(">)");
+            sgr_parts.pop_front();
+            sgr_parts.pop_front();
+            sgr_parts.pop_front();
+            sgr_parts.pop_front();
+            sgr_parts.pop_front();
+            stack_fg_color_.push("</font>");
+        } else {
+            return out;
+        }
+        break;
+    case 48:                                                // Set background color
         if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit background color // 48:5:⟨n⟩
             out.append(R"(<span style="background-color:)");
             out.append(decodeColor256(sgr_parts[2]));
@@ -224,51 +221,48 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             stack_bg_color_.push("</span>");
-          // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
-          } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
-              out.append(R"(<span style="background-color:#)");
-              out.append(getHexStr(sgr_parts[2]));
-              out.append(getHexStr(sgr_parts[3]));
-              out.append(getHexStr(sgr_parts[4]));
-              out.append(R"(">)");
-              sgr_parts.pop_front();
-              sgr_parts.pop_front();
-              sgr_parts.pop_front();
-              sgr_parts.pop_front();
-              sgr_parts.pop_front();
-              stack_bg_color_.push("</span>");
-            } else {
-                return out;
-              }
-            break;
+            // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
+        } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
+            out.append(R"(<span style="background-color:#)");
+            out.append(getHexStr(sgr_parts[2]));
+            out.append(getHexStr(sgr_parts[3]));
+            out.append(getHexStr(sgr_parts[4]));
+            out.append(R"(">)");
+            sgr_parts.pop_front();
+            sgr_parts.pop_front();
+            sgr_parts.pop_front();
+            sgr_parts.pop_front();
+            sgr_parts.pop_front();
+            stack_bg_color_.push("</span>");
+        } else {
+            return out;
+        }
+        break;
 
-        default:                                                // SGR code ranges
+    default:                                                // SGR code ranges
         if (30 <= sgr_code && 37 >= sgr_code) {             // foreground color from table
-            // TODO: возможно вернуть <font color> если будет две версии парсера и это ничего не сломает.
-            out.append(R"(<font color=")");                 // TODO: как-то красивее конструировать строку. Можно использовать {fmt} или подождать С++20 с eel.is/c++draft/format. Пока сойдёт так.
+            // For now using <font color> instead of <span style>. It is little shorter and should not brake in most of cases.
+            out.append(R"(<font color=")");                 // Not very beautilful string construction. Can use {fmt} or wait for С++20 with eel.is/c++draft/format.
             out.append(decodeColorBasic(sgr_code));
             out.append(R"(">)");
             stack_fg_color_.push("</font>");
-          } else if (40 <= sgr_code && 47 >= sgr_code) {      // background color from table
-              out.append(R"(<span style="background-color:)");
-              out.append(decodeColorBasic(sgr_code));
-              out.append(R"(">)");
-              stack_bg_color_.push("</span>");
-            } else {
-                std::cerr << "Warning: unsupported SGR: " <<  sgr_code << std::endl;
-              }
-      }
+        } else if (40 <= sgr_code && 47 >= sgr_code) {      // background color from table
+            out.append(R"(<span style="background-color:)");
+            out.append(decodeColorBasic(sgr_code));
+            out.append(R"(">)");
+            stack_bg_color_.push("</span>");
+        } else {
+            std::cerr << "Warning: unsupported SGR: " <<  sgr_code << std::endl;
+        }
+    }
 
-    // убираем обработанные параметры
-    if (sgr_code < 38                                       // эти параметры состоят из одного параметра
-        || (sgr_code >= 39 && sgr_code <= 47)
-        || sgr_code >= 49
-      ) {
-          sgr_parts.pop_front();
-        }                                                       // остальные параметры сами знают сколько им убирать (38 может убрать 3 или 5)
+    // Pop processed parameters
+    if (sgr_code != 38 && sgr_code != 48)  {  // All parameters except 38 and 48 contain single SGR part. 38 and 48 clean themselves (can pop 3 or 5)
+        sgr_parts.pop_front();
+    }
 
-    if (sgr_parts.empty())                                  // Параметры кончились
-    return out;                                         // Экономим вызов функции
+    if (sgr_parts.empty())                                  // No more parameters
+        return out;                                         // OPTIMIZATION: same check is in the begining of fucntion. Is this one redundant or is it worth not to call processSGR one more time vs checks?
 
     out += processSGR(sgr_parts);
     return out;
@@ -298,11 +292,6 @@ std::string ANSI_SGR2HTML::impl::detectHTMLSymbol(char symbol)
 
 std::string ANSI_SGR2HTML::impl::getHexStr(unsigned int num)
 {
-    /*  // too slow?
-    std::stringstream color_buf;    // avoid recreating stream every time. See https://stackoverflow.com/a/624291/149897
-    color_buf << std::hex << std::setfill('0') << std::setw(2) << num;
-    */
-
     //based on charconv's __to_chars_16. But have leading zero. Original to_chars don't add leading zero
     static constexpr char digits[513] =
             "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
@@ -317,12 +306,12 @@ std::string ANSI_SGR2HTML::impl::getHexStr(unsigned int num)
     std::string str16(2, 0);
 
     if(num >= 0x100)
-        return "ff";    // value out of range
+        return "ff";
 
     auto const num2 = num * 2;
     str16[0] = digits[num2];
     str16[1] = digits[num2 + 1];
-    return  str16.data();
+    return  str16;
 }
 
 
@@ -654,7 +643,7 @@ const std::unordered_map<unsigned char, const char*> ANSI_SGR2HTML::impl::colors
     {105, "#ff00ff"},
     {106, "#00ffff"},
     {107, "#ffffff"},
-  };                                                          // static defenition
+};                                                          // static defenition
 
 
 const char* ANSI_SGR2HTML::impl::decodeColorBasic(unsigned char color_code)
@@ -674,7 +663,6 @@ void ANSI_SGR2HTML::impl::resetAttribute(T& attribute_stack, std::basic_string<U
         attribute_stack.pop();
     }
 }
-
 
 // ANSI_SGR2HTML
 ANSI_SGR2HTML::ANSI_SGR2HTML() :
