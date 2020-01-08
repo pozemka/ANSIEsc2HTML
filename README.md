@@ -12,7 +12,7 @@ Library to convert limited part of SGR (Select Graphic Rendition) sequence of AN
 * 40–49, 100–107 — background color
 
 ## Limitations:
-See more info on [[wiki|Limitations]]
+See more info on [wiki](https://github.com/pozemka/ANSIEsc2HTML/wiki/Limitations)
 
 * All other SGR parameters are unsupported and produce no HTML code.
 * Can only disable SGR parameters in reverse order they where enabled. Terminal emulators can disable them in any order.
