@@ -240,19 +240,25 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
         break;
 
     default:                                                // SGR code ranges
-        if (30 <= sgr_code && 37 >= sgr_code) {             // foreground color from table
+        if (
+                (30 <= sgr_code && 37 >= sgr_code) ||
+                (90 <= sgr_code && 97 >= sgr_code)
+           ) {             // foreground color from table
             // For now using <font color> instead of <span style>. It is little shorter and should not brake in most of cases.
             out.append(R"(<font color=")");                 // Not very beautilful string construction. Can use {fmt} or wait for С++20 with eel.is/c++draft/format.
             out.append(decodeColorBasic(sgr_code));
             out.append(R"(">)");
             stack_fg_color_.push("</font>");
-        } else if (40 <= sgr_code && 47 >= sgr_code) {      // background color from table
+        } else if (
+                   (40 <= sgr_code && 47 >= sgr_code) ||
+                   (100 <= sgr_code && 107 >= sgr_code)
+                  ) {      // background color from table
             out.append(R"(<span style="background-color:)");
             out.append(decodeColorBasic(sgr_code));
             out.append(R"(">)");
             stack_bg_color_.push("</span>");
         } else {
-            std::cerr << "Warning: unsupported SGR: " <<  sgr_code << std::endl;
+            std::cerr << "Warning: unsupported SGR: " <<  static_cast<unsigned int>(sgr_code) << std::endl;
         }
     }
 
@@ -329,6 +335,7 @@ void ANSI_SGR2HTML::impl::resetAll(std::string& out)
 const char* ANSI_SGR2HTML::impl::decodeColor256(unsigned char color_code)
 {
     static constexpr std::array<const char*, 256> colors_256 = {
+        //standard colros based on Ubuntu color theme. Change to X-term colors?
         "#000000",        // Black
         "#de382b",        // Red
         "#39b54a",        // Green

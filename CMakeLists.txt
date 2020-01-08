@@ -15,17 +15,19 @@ add_library(ANSIEsc2HTML_static STATIC
     "${LIBRARY_SRCS}"
 )
 
-set_target_properties(ANSIEsc2HTML ANSIEsc2HTML_static PROPERTIES 
+add_executable(tests
+    tests/catch.hpp
+    tests/tests.cpp
+)
+
+target_link_libraries(tests ANSIEsc2HTML_static)
+
+add_dependencies(tests ANSIEsc2HTML_static)
+
+set_target_properties(ANSIEsc2HTML ANSIEsc2HTML_static tests PROPERTIES
     PUBLIC_HEADER src/ansi_esc2html.h
 #     VERSION ${PROJECT_VERSION}
 #     SOVERSION 0
     CXX_STANDARD 17
     CXX_EXTENSIONS OFF
-)
-
-add_executable(test
-    tests/catch.hpp
-    tests/tests.cpp
-    src/ansi_esc2html.h
-    "${LIBRARY_SRCS}"
 )

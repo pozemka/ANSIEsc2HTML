@@ -8,11 +8,12 @@ Library to convert limited part of SGR (Select Graphic Rendition) sequence of AN
 * 3	— Italic, 23 — Not italic
 * 4	— Underline, 24 — Underline off
 * 9 — Crossed-out, 29 — Not crossed out
-* 30–39 — foreground color
-* 40–49 — background color
+* 30–39, 90–97 — foreground color
+* 40–49, 100–107 — background color
 
 ## Limitations:
 See more info on [[wiki|Limitations]]
+
 * All other SGR parameters are unsupported and produce no HTML code.
 * Can only disable SGR parameters in reverse order they where enabled. Terminal emulators can disable them in any order.
 
@@ -37,7 +38,9 @@ This will produce, release versions of static and dynamic libraries and test exe
 
     mkdir build
     cd build/
-    `cmake -DCMAKE_BUILD_TYPE=Release ..` or `cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..` for Windows
+    cmake -DCMAKE_BUILD_TYPE=Release ..
+      # or for Windows
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release .. 
     make
 
 
