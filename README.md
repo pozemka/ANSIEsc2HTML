@@ -6,13 +6,14 @@ Library to convert limited part of SGR (Select Graphic Rendition) sequence of AN
 * 0 — Reset
 * 1 — Bold, 22 — Normal intensity
 * 3	— Italic, 23 — Not italic
-* 4	— Underline, 24 — Underline off
+* 4	— Underline, 24 — Underline off
 * 9 — Crossed-out, 29 — Not crossed out
 * 30–39 — foreground color
 * 40–49 — background color
 
 ## Limitations:
-* All other SGR parameters are unsupported.
+See more info on [[wiki|Limitations]]
+* All other SGR parameters are unsupported and produce no HTML code.
 * Can only disable SGR parameters in reverse order they where enabled. Terminal emulators can disable them in any order.
 
 ## Usage:
@@ -26,14 +27,17 @@ ANSI_SGR2HTML ansisgr2html;
 std::string ansi = "\x1b[48;5;141m background color \x1b[49m";
 std::string html = ansisgr2html.simpleParse(ansi);
 ```
+result HTML will be:
+```html
+<body style="background-color:#111111;font-family:'Consolas','Droid Sans Mono',monospace; color:#eeeeee; white-space:pre"><span style="background-color:#af87ff"> background color </span></body>
+```
 
 ## Compilation:
+This will produce, release versions of static and dynamic libraries and test executable:
+
     mkdir build
     cd build/
-    cmake ..
+    `cmake -DCMAKE_BUILD_TYPE=Release ..` or `cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..` for Windows
     make
 
-or
 
-    qmake
-    make release

@@ -31,6 +31,7 @@
 
 /**
  * @todo write docs
+ * All fucntions are reentrant but not thread-safe
  */
 class ANSI_SGR2HTML
 {

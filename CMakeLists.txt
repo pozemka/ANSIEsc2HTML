@@ -22,3 +22,10 @@ set_target_properties(ANSIEsc2HTML ANSIEsc2HTML_static PROPERTIES
     CXX_STANDARD 17
     CXX_EXTENSIONS OFF
 )
+
+add_executable(test
+    tests/catch.hpp
+    tests/tests.cpp
+    src/ansi_esc2html.h
+    "${LIBRARY_SRCS}"
+)

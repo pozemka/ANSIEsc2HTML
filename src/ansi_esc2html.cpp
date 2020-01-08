@@ -51,7 +51,7 @@ private:
     template<typename T, typename U> void resetAttribute(T& attribute_stack, std::basic_string<U>& out);
     const char* decodeColor256(unsigned char color_code);
     const char* decodeColorBasic(unsigned char color_code);
-    std::stack<const char*> stack_intensity_;
+    std::stack<const char*> stack_intensity_;   // OPTIMIZATION: stacks can be replaced with simple counters. But for now I still unsure if all tags for category will be same. For example <b> for intence and <span> for faint (faint not implemented yet). <b> can be replaced with span.
     std::stack<const char*> stack_italic_;
     std::stack<const char*> stack_underline_;
     std::stack<const char*> stack_cross_out_;
