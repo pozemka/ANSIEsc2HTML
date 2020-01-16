@@ -21,7 +21,7 @@ See more info on [wiki](https://github.com/pozemka/ANSIEsc2HTML/wiki/Limitations
 1. include `src/ansi_esc2html.h`
 2. either 
    * add `src/ansi_esc2html.cpp` to your project
-   * or link with `ansi_esc2html` library
+   * or link against `ansi_esc2html` library
 3. Example:
 ```cpp
 ANSI_SGR2HTML ansisgr2html;
