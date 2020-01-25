@@ -75,6 +75,12 @@ std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
     bool csi_set = false;
     for(const char& c : raw_data) {
         if (C_ESC == c) {                                   // Esc 0x1B
+            if(esc_set) {
+                // probably broken CSI or was processing unsupported CSI
+//                std::cerr << "ANSI_SGR2HTML: broken or unsupported CSI" << std::endl;
+                param_bytes_buf.clear();
+                csi_set = false;
+            }
             esc_set = true;
             continue;
         }
@@ -103,6 +109,9 @@ std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
             } else {
                 out_s.append(detectHTMLSymbol(c));
             }
+            continue;
+        }
+        if(esc_set || csi_set) {                            // no valid CSI symbols but ESC or CSI set
             continue;
         }
         if ('\n' == c) {                                    // LF 0x0a
@@ -260,7 +269,7 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             out.append(R"(">)");
             stack_bg_color_.push("</span>");
         } else {
-            std::cerr << "Warning: unsupported SGR: " <<  static_cast<unsigned int>(sgr_code) << std::endl;
+//            std::cerr << "ANSI_SGR2HTML: unsupported SGR: " <<  static_cast<unsigned int>(sgr_code) << std::endl;
         }
     }
 
