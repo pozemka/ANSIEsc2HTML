@@ -2,6 +2,8 @@
 #include "catch.hpp"
 #include "../src/ansi_esc2html.h"
 
+//TODO: test cr, lf, crlf, etc.
+//TODO: test for CSI different from SGR. Make them ignored in simpleParse
 
 static std::string body_start=R"(<body style="background-color:#111111;font-family:'Consolas','Droid Sans Mono',monospace; color:#eeeeee; white-space:pre">)";
 static std::string body_end=R"(</body>)";
@@ -56,6 +58,11 @@ TEST_CASE( "colors", "[colors]" ) {
     SECTION( "24-bit-color: 38 47 79 79 DarkSlateGray foreground" ) {
         std::string res = a2h.simpleParse("\x1b[38;2;47;79;79m DarkSlateGray foreground \x1b[39m");
         CHECK(body_start+R"(<font color="#2f4f4f"> DarkSlateGray foreground </font>)"+body_end == res);
+    }
+
+    SECTION( "24-bit-color: 38 255 85 127 pink 🐨 coala" ) {
+        std::string res = a2h.simpleParse("\x1b[38;2;255;85;127m pink 🐨 coala \x1b[39m");
+        CHECK(body_start+R"(<font color="#ff557f"> pink 🐨 coala </font>)"+body_end == res);
     }
 }
 

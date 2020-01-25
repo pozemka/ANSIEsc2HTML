@@ -42,5 +42,3 @@ This will produce, release versions of static and dynamic libraries and test exe
       # or for Windows
     cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release .. 
     make
-
-

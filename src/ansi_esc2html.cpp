@@ -59,6 +59,8 @@ private:
     std::stack<const char*> stack_bg_color_;
     //can't constexpr maps so other trick is used
     static const std::unordered_map<unsigned char, const char*> colors_basic_;
+
+    const char C_ESC = 0x1B;    //Esc ASCII code
 };
 
 
@@ -69,36 +71,36 @@ std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
     out_s.reserve(raw_data.size()); //very approximate reservation
     //NOTE: Use apostrophes ' not quotes " inside style quotation marks!
     out_s.append(R"(<body style="background-color:#111111;font-family:'Consolas','Droid Sans Mono',monospace; color:#eeeeee; white-space:pre">)");
-    bool ESC = false;
-    bool CSI = false;
+    bool esc_set = false;
+    bool csi_set = false;
     for(const char& c : raw_data) {
-        if (0x1B == c) {                                   // ESC
-            ESC = true;
+        if (C_ESC == c) {                                   // Esc 0x1B
+            esc_set = true;
             continue;
         }
         if ('[' == c) {                                    // [ 0x5B
-            if (ESC) {
-                CSI = true;
+            if (esc_set) {
+                csi_set = true;
             } else {
                 out_s.append(detectHTMLSymbol(c));
             }
             continue;
         }
         if ('m' == c) {
-            if (CSI && ESC) {                               // end of ESC-SGR последовательности
+            if (csi_set && esc_set) {                               // end of ESC-SGR последовательности
                 auto sgr = splitSGR(param_bytes_buf);
                 out_s.append(processSGR(sgr));
                 param_bytes_buf.clear();
-                CSI = ESC = false;                          // end of ESC
+                csi_set = esc_set = false;                          // end of ESC
             } else {
                 out_s.append(detectHTMLSymbol(c));
             }
             continue;
         }
-        if (0x30 <= c && 0x3F >= c) {                       // fill SGR
-            if (CSI && ESC) {
+        if (0x30 <= c && 0x3F >= c) {                       // fill SGR. Valid SGR parameter bytes are 0123456789:;<=>?
+            if (csi_set && esc_set) {
                 param_bytes_buf.push_back(c);
-            } else { //0x30-0x3f are valid cahracters '0'-'?'
+            } else {
                 out_s.append(detectHTMLSymbol(c));
             }
             continue;
