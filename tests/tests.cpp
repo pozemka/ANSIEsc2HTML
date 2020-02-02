@@ -2,6 +2,8 @@
 #include "catch.hpp"
 #include "../src/ansi_esc2html.h"
 
+#include <fstream>
+
 //TODO: test cr, lf, crlf, etc.
 //TODO: test for CSI different from SGR. Make them ignored in simpleParse
 
@@ -16,16 +18,16 @@ TEST_CASE( "empty strings", "[empty]" ) {
     ANSI_SGR2HTML a2h;
     SECTION( "empty string" ) {
         std::string res = a2h.simpleParse("");
-        CHECK(body_start+body_end == res);
+        CHECK(res == body_start+body_end);
     }
     SECTION( "null string" ) {
         std::string res = a2h.simpleParse(std::string());
-        CHECK(body_start+body_end == res);
+        CHECK(res == body_start+body_end);
     }
     SECTION( "unsupported params" ) {
         // ideogram attributes are not supported
         std::string res = a2h.simpleParse("\x1b[62m\x1b[65m");
-        CHECK(body_start+body_end == res);
+        CHECK(res == body_start+body_end);
     }
 }
 
@@ -106,6 +108,7 @@ TEST_CASE( "complex", "[complex]") {
     ANSI_SGR2HTML a2h;
 }
 
+// NOTE: HTML produced from bad input is valid but not matching input.
 TEST_CASE( "basic bad inputs for simpleParse", "[basic_bad_simple]") {
     ANSI_SGR2HTML a2h;
     auto [section, test_case] = GENERATE( table<std::string, AE2HTestCase>({
@@ -115,12 +118,13 @@ TEST_CASE( "basic bad inputs for simpleParse", "[basic_bad_simple]") {
         {"Wrong close parameter",
             {"\x1b[42m open bg close fg \x1b[39m",
                 R"(<span style="background-color:#39b54a"> open bg close fg </span>)"}},
-        {"bg+fg colors wrong close orded",
+        {"bg+fg colors wrong close order",
             {"\x1b[42;36m green bg cyan fg \x1b[49;39m",
-                R"(<span style="background-color:#39b54a"><font color="#2cb5e9"> green bg cyan fg </span></font>)"}},
+                R"(<span style="background-color:#39b54a"><font color="#2cb5e9"> green bg cyan fg </font></span>)"}},
         {"bg+fg+bold then fg+bold",
             {"\x1b[38;5;208;48;5;141;1m EvErYtHiNg \x1b[49m EvErYtHiNg but background",
-                R"(<font color="#ff8700"><span style="background-color:#af87ff"><b> EvErYtHiNg </span> EvErYtHiNg but background</b></font>)"}}, // Wrong close order. As expected
+                R"(<font color="#ff8700"><span style="background-color:#af87ff"><b> EvErYtHiNg </b> EvErYtHiNg but background</span></font>)"}},
+
         {"broken sgrs",
             {"\x1b[62\x1b[65aaa",
                 R"()"}},

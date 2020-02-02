@@ -16,11 +16,19 @@ add_library(ANSIEsc2HTML_static STATIC
 )
 
 add_executable(tests
+#    EXCLUDE_FROM_ALL
     tests/catch.hpp
     tests/tests.cpp
 )
 
 target_link_libraries(tests ANSIEsc2HTML_static)
+
+#target_compile_definitions(tests PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING)
+#set(RELEASE_OPTIONS
+#    -O3
+#)
+#target_compile_options(ANSIEsc2HTML_static PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")
+#target_compile_options(tests PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")
 
 add_dependencies(tests ANSIEsc2HTML_static)
 

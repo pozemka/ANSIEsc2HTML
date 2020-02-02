@@ -42,21 +42,45 @@ public:
     std::string simpleParse(const std::string& raw_data);
     
 private:
+    enum Tag : int {  //supposed to be used as int so no 'class'
+        BOLD,
+        ITALIC,
+        UNDERLINE,
+        CROSS_OUT,
+        FG_COLOR,
+        BG_COLOR
+    };
+
+    static constexpr std::string_view tag_value[] = {
+        // It would be nice place to have designated initializer for arrays in C++:
+        // [Tag::BOLD] = "</b>",
+        // instead of error-prone:
+        "</b>",
+        "</i>",
+        "</u>",
+        "</s>",
+        "</font>",
+        "</span>"
+    };
+
     SGRParts splitSGR(const std::string& data);
     std::string processSGR(SGRParts& sgr_parts/*non const!*/);
     std::string detectHTMLSymbol(char symbol);
     std::string getHexStr(unsigned int num);
     void resetAll(std::string& out);
     // template will help replace strings and chars with their wide counterparts
-    template<typename T, typename U> void resetAttribute(T& attribute_stack, std::basic_string<U>& out);
+    template<typename U> void resetAttribute(unsigned int& attribute_counter, std::basic_string<U>& out);
     const char* decodeColor256(unsigned char color_code);
     const char* decodeColorBasic(unsigned char color_code);
-    std::stack<const char*> stack_intensity_;   // OPTIMIZATION: stacks can be replaced with simple counters. But for now I still unsure if all tags for category will be same. For example <b> for intence and <span> for faint (faint not implemented yet). <b> can be replaced with span.
-    std::stack<const char*> stack_italic_;
-    std::stack<const char*> stack_underline_;
-    std::stack<const char*> stack_cross_out_;
-    std::stack<const char*> stack_fg_color_;
-    std::stack<const char*> stack_bg_color_;
+
+    std::stack<Tag> stack_all_;
+    unsigned int counter_intensity_ = 0;
+    unsigned int counter_italic_ = 0;
+    unsigned int counter_underline_ = 0;
+    unsigned int counter_cross_out_ = 0;
+    unsigned int counter_fg_color_ = 0;
+    unsigned int counter_bg_color_ = 0;
+
     //can't constexpr maps so other trick is used
     static const std::unordered_map<unsigned char, const char*> colors_basic_;
 
@@ -126,7 +150,6 @@ std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
     return out_s;
 }
 
-
 ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(const std::string& data)
 {
     SGRParts sgr_parts;
@@ -162,38 +185,42 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
         break;
 
     case 1:                                                 // Bold or increased intensity
-        out.append("<b>");
-        stack_intensity_.push("</b>");
+        out.append("<b>");  //string literals can be replaced with string_view constants with no measured performance difference
+        stack_all_.push(Tag::BOLD);
+        counter_intensity_++;
         break;
     case 3:                                                 // Italic
         out.append("<i>");
-        stack_italic_.push("</i>");
+        stack_all_.push(Tag::ITALIC);
+        counter_italic_++;
         break;
     case 4:                                                 // Underline
         out.append("<u>");
-        stack_underline_.push("</u>");
+        stack_all_.push(Tag::UNDERLINE);
+        counter_underline_++;
         break;
     case 9:                                                 // Crossed-out
         out.append("<s>");
-        stack_cross_out_.push("</s>");
+        stack_all_.push(Tag::CROSS_OUT);
+        counter_cross_out_++;
         break;
     case 22:                                                // Normal color or intensity
-        resetAttribute(stack_intensity_, out);
+        resetAttribute(counter_intensity_, out);
         break;
     case 23:                                                // Not italic, not Fraktur
-        resetAttribute(stack_italic_, out);
+        resetAttribute(counter_italic_, out);
         break;
     case 24:                                                // Underline off
-        resetAttribute(stack_underline_, out);
+        resetAttribute(counter_underline_, out);
         break;
     case 29:                                                // Not crossed out
-        resetAttribute(stack_cross_out_, out);
+        resetAttribute(counter_cross_out_, out);
         break;
     case 39:                                                // Default foreground color
-        resetAttribute(stack_fg_color_, out);
+        resetAttribute(counter_fg_color_, out);
         break;
     case 49:                                                // Default background color
-        resetAttribute(stack_bg_color_, out);
+        resetAttribute(counter_bg_color_, out);
         break;
     case 38:                                                // Set foreground color
         if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit foreground color // 38:5:⟨n⟩
@@ -205,7 +232,8 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
-            stack_fg_color_.push("</font>");
+            stack_all_.push(Tag::FG_COLOR);
+            counter_fg_color_++;
             // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
             out.append(R"(<font color="#)");
@@ -218,7 +246,8 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
-            stack_fg_color_.push("</font>");
+            stack_all_.push(Tag::FG_COLOR);
+            counter_fg_color_++;
         } else {
             return out;
         }
@@ -231,7 +260,8 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
-            stack_bg_color_.push("</span>");
+            stack_all_.push(Tag::BG_COLOR);
+            counter_bg_color_++;
             // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
             out.append(R"(<span style="background-color:#)");
@@ -244,7 +274,8 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             sgr_parts.pop_front();
             sgr_parts.pop_front();
             sgr_parts.pop_front();
-            stack_bg_color_.push("</span>");
+            stack_all_.push(Tag::BG_COLOR);
+            counter_bg_color_++;
         } else {
             return out;
         }
@@ -254,20 +285,22 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
         if (
                 (30 <= sgr_code && 37 >= sgr_code) ||
                 (90 <= sgr_code && 97 >= sgr_code)
-           ) {             // foreground color from table
+           ) {                                              // foreground color from table
             // For now using <font color> instead of <span style>. It is little shorter and should not brake in most of cases.
             out.append(R"(<font color=")");                 // Not very beautilful string construction. Can use {fmt} or wait for С++20 with eel.is/c++draft/format.
             out.append(decodeColorBasic(sgr_code));
             out.append(R"(">)");
-            stack_fg_color_.push("</font>");
+            stack_all_.push(Tag::FG_COLOR);
+            counter_fg_color_++;
         } else if (
                    (40 <= sgr_code && 47 >= sgr_code) ||
                    (100 <= sgr_code && 107 >= sgr_code)
-                  ) {      // background color from table
+                  ) {                                       // background color from table
             out.append(R"(<span style="background-color:)");
             out.append(decodeColorBasic(sgr_code));
             out.append(R"(">)");
-            stack_bg_color_.push("</span>");
+            stack_all_.push(Tag::BG_COLOR);
+            counter_bg_color_++;
         } else {
 //            std::cerr << "ANSI_SGR2HTML: unsupported SGR: " <<  static_cast<unsigned int>(sgr_code) << std::endl;
         }
@@ -334,12 +367,12 @@ std::string ANSI_SGR2HTML::impl::getHexStr(unsigned int num)
 
 void ANSI_SGR2HTML::impl::resetAll(std::string& out)
 {
-    resetAttribute(stack_intensity_, out);
-    resetAttribute(stack_italic_, out);
-    resetAttribute(stack_underline_, out);
-    resetAttribute(stack_cross_out_, out);
-    resetAttribute(stack_fg_color_, out);
-    resetAttribute(stack_bg_color_, out);
+    resetAttribute(counter_intensity_, out);
+    resetAttribute(counter_italic_   , out);
+    resetAttribute(counter_underline_, out);
+    resetAttribute(counter_cross_out_, out);
+    resetAttribute(counter_fg_color_ , out);
+    resetAttribute(counter_bg_color_ , out);
 }
 
 
@@ -672,26 +705,30 @@ const char* ANSI_SGR2HTML::impl::decodeColorBasic(unsigned char color_code)
 }
 
 
-template<typename T, typename U>
-void ANSI_SGR2HTML::impl::resetAttribute(T& attribute_stack, std::basic_string<U>& out)
+template<typename U>
+/**
+ * @brief ANSI_SGR2HTML::impl::resetAttribute
+ * @param attribute_counter
+ * @param out
+ * NOTE: attribute_counter passed as reference
+ */
+void ANSI_SGR2HTML::impl::resetAttribute(unsigned int& attribute_counter, std::basic_string<U>& out)
 {
-    static_assert (std::is_same_v<T, std::stack<const U*> >, "T must be std::stack of const CharT*");
-    while (!attribute_stack.empty()) {
-        out.append(attribute_stack.top());
-        attribute_stack.pop();
-    }
+    for(;attribute_counter>0; --attribute_counter) {
+        out.append(tag_value[stack_all_.top()]);
+        stack_all_.pop();
+      }
 }
+
 
 // ANSI_SGR2HTML
 ANSI_SGR2HTML::ANSI_SGR2HTML() :
     pimpl_(std::make_unique<impl>())
 {
-
 }
 
 ANSI_SGR2HTML::~ANSI_SGR2HTML()
 {
-
 }
 
 std::string ANSI_SGR2HTML::simpleParse(const std::string &raw_data)
