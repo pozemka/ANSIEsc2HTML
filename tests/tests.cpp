@@ -106,6 +106,18 @@ TEST_CASE( "mixed", "[mixed]" ) {
 
 TEST_CASE( "complex", "[complex]") {
     ANSI_SGR2HTML a2h;
+    auto [section, test_case] = GENERATE( table<std::string, AE2HTestCase>({
+        {"24-bit-color: 38 255 85 127 pink 🐨 coala",
+            {"\x1b[38;2;255;85;127m pink 🐨 coala \x1b[39m",
+            R"(<font color="#ff557f"> pink 🐨 coala </font>)"}},
+        {"24-bit-color: 38 255 85 127 pink 🐨 coala",
+            {"\x1b[38;2;25;85;127m capry blue Приве́т नमस्ते שָׁלוֹם mixed locales \x1b[39m",
+            R"(<font color="#19557f"> capry blue Приве́т नमस्ते שָׁלוֹם mixed locales </font>)"}}
+    }));
+    GIVEN( section )
+    THEN( "output should be " << test_case.expected ) {
+        CHECK(a2h.simpleParse(test_case.input) == body_start+test_case.expected+body_end);
+    }
 }
 
 // NOTE: HTML produced from bad input is valid but not matching input.
