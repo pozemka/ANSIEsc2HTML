@@ -42,7 +42,8 @@ public:
     std::string simpleParse(const std::string& raw_data);
     
 private:
-    enum Tag : int {  //supposed to be used as int so no 'class'
+    const char C_ESC = 0x1B;    //Esc ASCII code
+    enum class Tag : int {  //supposed to be used as int
         BOLD,
         ITALIC,
         UNDERLINE,
@@ -63,15 +64,24 @@ private:
         "</span>"
     };
 
-    SGRParts splitSGR(const std::string& data);
+    static constexpr int pow10[] = { 1,         10,         100,
+                                     1000,      10'000,     100'000,
+                                     1'000'000, 10'000'000, 100'000'000,
+                                     1'000'000'000
+                                   };
+
+    //can't constexpr maps so other trick is used
+    static const std::unordered_map<unsigned char, std::string_view> colors_basic_;
+
+    SGRParts splitSGR(std::string_view data);
     std::string processSGR(SGRParts& sgr_parts/*non const!*/);
     std::string detectHTMLSymbol(char symbol);
     std::string getHexStr(unsigned int num);
     void resetAll(std::string& out);
     // template will help replace strings and chars with their wide counterparts
     template<typename U> void resetAttribute(unsigned int& attribute_counter, std::basic_string<U>& out);
-    const char* decodeColor256(unsigned char color_code);
-    const char* decodeColorBasic(unsigned char color_code);
+    std::string_view decodeColor256(unsigned char color_code);
+    std::string_view decodeColorBasic(unsigned char color_code);
 
     std::stack<Tag> stack_all_;
     unsigned int counter_intensity_ = 0;
@@ -80,11 +90,6 @@ private:
     unsigned int counter_cross_out_ = 0;
     unsigned int counter_fg_color_ = 0;
     unsigned int counter_bg_color_ = 0;
-
-    //can't constexpr maps so other trick is used
-    static const std::unordered_map<unsigned char, const char*> colors_basic_;
-
-    const char C_ESC = 0x1B;    //Esc ASCII code
 };
 
 
@@ -150,23 +155,39 @@ std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
     return out_s;
 }
 
-ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(const std::string& data)
+ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(std::string_view data)
 {
     SGRParts sgr_parts;
-    std::stringstream split_buf;
-    unsigned int sgr_param = 0;                             // If char type used here stringstream >> extract as symbols not as numbers, so int type used
-    for(const char& c : data) {
-        if(';' == c) {                                     // splitter
-            split_buf >> sgr_param;
-            // charconv (C++17) is a little less convinient because chars extracted one by one. Same with to_string()
-            sgr_parts.push_back(static_cast<unsigned char>(sgr_param));
-            split_buf.clear();                              // unsets failbit if any
-        } else {
-            split_buf << c;
+//    auto it = data.begin();
+//    while(it != data.end()) {
+//        it = std::find_if(it, data.end(), static_cast<int(*)(int)>(isdigit));
+//        auto ed = std::find_if_not(it, data.end(), static_cast<int(*)(int)>(isdigit));
+//        if(it!=data.end()) {
+//            unsigned char val = 0;
+//            auto result = std::from_chars(&(*it), &(*ed), val);   // val unmodified instead of overflow. Could check return value for results
+//            sgr_parts.push_back(val);
+//        }
+//        it = ed;
+//    }
+
+    // ~30% faster
+    unsigned char v = 0;
+    int power = 0;
+    size_t i = data.size()-1;
+    do {
+        char cc = data[i];
+        if(isdigit(cc)) {
+            v += pow10[power] * (cc-'0');// Part of SGR are 0..255 so unsigned char overflow happen only for incorrect data.
+            power++;
+        } else if (power) {
+            sgr_parts.push_back(v);
+            v = 0;
+            power = 0;
         }
-    }
-    split_buf >> sgr_param;
-    sgr_parts.push_back(static_cast<unsigned char>(sgr_param));
+    } while(i-- > 0);
+    if(power)
+        sgr_parts.push_back(v);
+    std::reverse(begin(sgr_parts), end(sgr_parts));
     return sgr_parts;
 }
 
@@ -312,13 +333,13 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
     }
 
     if (sgr_parts.empty())                                  // No more parameters
-        return out;                                         // OPTIMIZATION: same check is in the begining of fucntion. Is this one redundant or is it worth not to call processSGR one more time vs checks?
+        return out;                                         // OPTIMIZATION: same check is in the beginning of function. Is this one redundant or is it worth not to call processSGR one more time vs checks?
 
     out += processSGR(sgr_parts);
     return out;
 }
 
-
+// OPTIMIZATION: pass reference to modifiable out string to directly append?
 std::string ANSI_SGR2HTML::impl::detectHTMLSymbol(char symbol)
 {
     switch (symbol) {
@@ -339,7 +360,7 @@ std::string ANSI_SGR2HTML::impl::detectHTMLSymbol(char symbol)
     }
 }
 
-
+// OPTIMIZATION: pass reference to modifiable out string to directly append?
 std::string ANSI_SGR2HTML::impl::getHexStr(unsigned int num)
 {
     //based on charconv's __to_chars_16. But have leading zero. Original to_chars don't add leading zero
@@ -353,15 +374,11 @@ std::string ANSI_SGR2HTML::impl::getHexStr(unsigned int num)
             "c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf"
             "e0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff";
 
-    std::string str16(2, 0);
-
     if(num >= 0x100)
-        return "ff";
+        return std::string("ff");
 
     auto const num2 = num * 2;
-    str16[0] = digits[num2];
-    str16[1] = digits[num2 + 1];
-    return  str16;
+    return std::string{digits[num2], digits[num2 + 1]};
 }
 
 
@@ -376,9 +393,9 @@ void ANSI_SGR2HTML::impl::resetAll(std::string& out)
 }
 
 
-const char* ANSI_SGR2HTML::impl::decodeColor256(unsigned char color_code)
+std::string_view ANSI_SGR2HTML::impl::decodeColor256(unsigned char color_code)
 {
-    static constexpr std::array<const char*, 256> colors_256 = {
+    static constexpr std::array<std::string_view, 256> colors_256 = {
         //standard colros based on Ubuntu color theme. Change to X-term colors?
         "#000000",        // Black
         "#de382b",        // Red
@@ -660,7 +677,7 @@ const char* ANSI_SGR2HTML::impl::decodeColor256(unsigned char color_code)
 
 
 //Not sure if maps will be optimized as inline if defined statically inside function scope so defined in class scope
-const std::unordered_map<unsigned char, const char*> ANSI_SGR2HTML::impl::colors_basic_ = {
+const std::unordered_map<unsigned char, std::string_view> ANSI_SGR2HTML::impl::colors_basic_ = {
     {30,  "#000000"},
     {31,  "#de382b"},
     {32,  "#39b54a"},
@@ -694,12 +711,13 @@ const std::unordered_map<unsigned char, const char*> ANSI_SGR2HTML::impl::colors
     {105, "#ff00ff"},
     {106, "#00ffff"},
     {107, "#ffffff"},
-};                                                          // static defenition
+};                                                          // static definition
 
 
-const char* ANSI_SGR2HTML::impl::decodeColorBasic(unsigned char color_code)
+
+std::string_view ANSI_SGR2HTML::impl::decodeColorBasic(unsigned char color_code)
 {
-    if(colors_basic_.count(color_code))
+    if(colors_basic_.count(color_code)) // OPTIMIZATION use colors_basic_.find(color_code) and check for end(). It will reduce number of searches
         return colors_basic_.at(color_code);
     return "#ffffff";
 }
@@ -715,7 +733,7 @@ template<typename U>
 void ANSI_SGR2HTML::impl::resetAttribute(unsigned int& attribute_counter, std::basic_string<U>& out)
 {
     for(;attribute_counter>0; --attribute_counter) {
-        out.append(tag_value[stack_all_.top()]);
+        out.append(tag_value[static_cast<int>(stack_all_.top())]);
         stack_all_.pop();
       }
 }
