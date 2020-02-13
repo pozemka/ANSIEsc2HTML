@@ -24,6 +24,10 @@ TEST_CASE( "empty strings", "[empty]" ) {
         std::string res = a2h.simpleParse(std::string());
         CHECK(res == body_start+body_end);
     }
+    SECTION( "empty param" ) {
+        std::string res = a2h.simpleParse("\x1b[m");
+        CHECK(res == body_start+body_end);
+    }
     SECTION( "unsupported params" ) {
         // ideogram attributes are not supported
         std::string res = a2h.simpleParse("\x1b[62m\x1b[65m");
@@ -96,7 +100,13 @@ TEST_CASE( "mixed", "[mixed]" ) {
                 R"(<span style="background-color:#39b54a"><font color="#2cb5e9"> green bg cyan fg </font></span>)"}},
         {"bg+fg+bold",
             {"\x1b[38;5;208;48;5;141;1m EvErYtHiNg \x1b[0m",
-                R"(<font color="#ff8700"><span style="background-color:#af87ff"><b> EvErYtHiNg </b></span></font>)"}}
+                R"(<font color="#ff8700"><span style="background-color:#af87ff"><b> EvErYtHiNg </b></span></font>)"}},
+        {"fg+bg then fg",
+            {"\x1b[36;42mE\x1b[35mxit",
+                R"(<font color="#2cb5e9"><span style="background-color:#39b54a">E<font color="#762671">xit</font></span></font>)"}},
+        {"bg+fg then fg",
+            {"\x1b[46;32mE\x1b[35mxit",
+                R"(<span style="background-color:#2cb5e9"><font color="#39b54a">E<font color="#762671">xit</font></font></span>)"}}
     }));
     GIVEN( section )
     THEN( "output should be " << test_case.expected ) {
@@ -145,7 +155,7 @@ TEST_CASE( "basic bad inputs for simpleParse", "[basic_bad_simple]") {
                 R"(bbb)"}},
         {"broken sgr then correct one",
             {"\x1b[31\x1b[32m aaa",
-                R"(<font color="#39b54a"> aaa</font>)"}}
+                R"(<font color="#39b54a"> aaa</font>)"}},
     }));
     GIVEN( section )
     THEN( "output should be " << test_case.expected ) {
@@ -156,6 +166,9 @@ TEST_CASE( "basic bad inputs for simpleParse", "[basic_bad_simple]") {
 TEST_CASE( "Unsupported CSIs for simpleParse", "[unsupported_csi_simple]") {
     ANSI_SGR2HTML a2h;
     auto [section, test_case] = GENERATE( table<std::string, AE2HTestCase>({
+        {"unsupported CSI: 128",
+            {"\x1b[128m unsupported \x1b[49m",
+                R"( unsupported )"}},
         {"Unsupported CSI n A",
             {"\x1b[9A", ""}},
         {"Unsupported CSI n;m H",

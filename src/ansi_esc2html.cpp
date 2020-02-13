@@ -64,12 +64,6 @@ private:
         "</span>"
     };
 
-    static constexpr int pow10[] = { 1,         10,         100,
-                                     1000,      10'000,     100'000,
-                                     1'000'000, 10'000'000, 100'000'000,
-                                     1'000'000'000
-                                   };
-
     //can't constexpr maps so other trick is used
     static const std::unordered_map<unsigned char, std::string_view> colors_basic_;
 
@@ -78,8 +72,7 @@ private:
     std::string detectHTMLSymbol(char symbol);
     std::string getHexStr(unsigned int num);
     void resetAll(std::string& out);
-    // template will help replace strings and chars with their wide counterparts
-    template<typename U> void resetAttribute(unsigned int& attribute_counter, std::basic_string<U>& out);
+    void resetAttribute(unsigned int& attribute_counter, std::string& out);
     std::string_view decodeColor256(unsigned char color_code);
     std::string_view decodeColorBasic(unsigned char color_code);
 
@@ -172,22 +165,18 @@ ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(std::string_view dat
 
     // ~30% faster
     unsigned char v = 0;
-    int power = 0;
-    size_t i = data.size()-1;
-    do {
+    for(size_t i = 0 ; i < data.size(); i++) {
         char cc = data[i];
         if(isdigit(cc)) {
-            v += pow10[power] * (cc-'0');// Part of SGR are 0..255 so unsigned char overflow happen only for incorrect data.
-            power++;
-        } else if (power) {
+            v = static_cast<unsigned char>(v * 10 + (cc-'0'));  //Part of SGR are 0..255 so unsigned char overflow happen only for incorrect data.
+        } else if(v != 0) {
             sgr_parts.push_back(v);
             v = 0;
-            power = 0;
         }
-    } while(i-- > 0);
-    if(power)
+    }
+    if(v != 0) {
         sgr_parts.push_back(v);
-    std::reverse(begin(sgr_parts), end(sgr_parts));
+    }
     return sgr_parts;
 }
 
@@ -676,6 +665,7 @@ std::string_view ANSI_SGR2HTML::impl::decodeColor256(unsigned char color_code)
 }
 
 
+//OPTIMIZATION: replace with an array?
 //Not sure if maps will be optimized as inline if defined statically inside function scope so defined in class scope
 const std::unordered_map<unsigned char, std::string_view> ANSI_SGR2HTML::impl::colors_basic_ = {
     {30,  "#000000"},
@@ -717,20 +707,21 @@ const std::unordered_map<unsigned char, std::string_view> ANSI_SGR2HTML::impl::c
 
 std::string_view ANSI_SGR2HTML::impl::decodeColorBasic(unsigned char color_code)
 {
-    if(colors_basic_.count(color_code)) // OPTIMIZATION use colors_basic_.find(color_code) and check for end(). It will reduce number of searches
-        return colors_basic_.at(color_code);
+    if(auto res = colors_basic_.find(color_code);
+            res != colors_basic_.end()) {
+        return res->second;
+    }
     return "#ffffff";
 }
 
 
-template<typename U>
 /**
  * @brief ANSI_SGR2HTML::impl::resetAttribute
  * @param attribute_counter
  * @param out
  * NOTE: attribute_counter passed as reference
  */
-void ANSI_SGR2HTML::impl::resetAttribute(unsigned int& attribute_counter, std::basic_string<U>& out)
+void ANSI_SGR2HTML::impl::resetAttribute(unsigned int& attribute_counter, std::string& out)
 {
     for(;attribute_counter>0; --attribute_counter) {
         out.append(tag_value[static_cast<int>(stack_all_.top())]);
