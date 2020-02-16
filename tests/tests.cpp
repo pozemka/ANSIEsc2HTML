@@ -106,7 +106,10 @@ TEST_CASE( "mixed", "[mixed]" ) {
                 R"(<font color="#2cb5e9"><span style="background-color:#39b54a">E<font color="#762671">xit</font></span></font>)"}},
         {"bg+fg then fg",
             {"\x1b[46;32mE\x1b[35mxit",
-                R"(<span style="background-color:#2cb5e9"><font color="#39b54a">E<font color="#762671">xit</font></font></span>)"}}
+                R"(<span style="background-color:#2cb5e9"><font color="#39b54a">E<font color="#762671">xit</font></font></span>)"}},
+        {"bold then reset then bold",
+            {"\x1b[1m bold \x1b[0m not bold \x1b[1m bold \x1b[0m",
+                R"(<b> bold </b> not bold <b> bold </b>)"}}
     }));
     GIVEN( section )
     THEN( "output should be " << test_case.expected ) {
@@ -155,7 +158,7 @@ TEST_CASE( "basic bad inputs for simpleParse", "[basic_bad_simple]") {
                 R"(bbb)"}},
         {"broken sgr then correct one",
             {"\x1b[31\x1b[32m aaa",
-                R"(<font color="#39b54a"> aaa</font>)"}},
+                R"(<font color="#39b54a"> aaa</font>)"}}
     }));
     GIVEN( section )
     THEN( "output should be " << test_case.expected ) {

@@ -165,16 +165,19 @@ ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(std::string_view dat
 
     // ~30% faster
     unsigned char v = 0;
+    bool has_digit = false;
     for(size_t i = 0 ; i < data.size(); i++) {
         char cc = data[i];
         if(isdigit(cc)) {
             v = static_cast<unsigned char>(v * 10 + (cc-'0'));  //Part of SGR are 0..255 so unsigned char overflow happen only for incorrect data.
-        } else if(v != 0) {
+            has_digit = true;
+        } else if(has_digit) {
             sgr_parts.push_back(v);
             v = 0;
+            has_digit = false;
         }
     }
-    if(v != 0) {
+    if(has_digit) {
         sgr_parts.push_back(v);
     }
     return sgr_parts;
