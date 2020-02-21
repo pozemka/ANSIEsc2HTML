@@ -70,7 +70,7 @@ private:
     SGRParts splitSGR(std::string_view data);
     std::string processSGR(SGRParts& sgr_parts/*non const!*/);
     std::string detectHTMLSymbol(char symbol);
-    std::string getHexStr(unsigned int num);
+    void getHexStr(unsigned int num, std::string &out);
     void resetAll(std::string& out);
     void resetAttribute(unsigned int& attribute_counter, std::string& out);
     std::string_view decodeColor256(unsigned char color_code);
@@ -78,11 +78,11 @@ private:
 
     std::stack<Tag> stack_all_;
     unsigned int counter_intensity_ = 0;
-    unsigned int counter_italic_ = 0;
+    unsigned int counter_italic_    = 0;
     unsigned int counter_underline_ = 0;
     unsigned int counter_cross_out_ = 0;
-    unsigned int counter_fg_color_ = 0;
-    unsigned int counter_bg_color_ = 0;
+    unsigned int counter_fg_color_  = 0;
+    unsigned int counter_bg_color_  = 0;
 };
 
 
@@ -250,9 +250,9 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
             out.append(R"(<font color="#)");
-            out.append(getHexStr(sgr_parts[2]));
-            out.append(getHexStr(sgr_parts[3]));
-            out.append(getHexStr(sgr_parts[4]));
+            getHexStr(sgr_parts[2], out);
+            getHexStr(sgr_parts[3], out);
+            getHexStr(sgr_parts[4], out);
             out.append(R"(">)");
             sgr_parts.pop_front();
             sgr_parts.pop_front();
@@ -278,9 +278,9 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
             out.append(R"(<span style="background-color:#)");
-            out.append(getHexStr(sgr_parts[2]));
-            out.append(getHexStr(sgr_parts[3]));
-            out.append(getHexStr(sgr_parts[4]));
+            getHexStr(sgr_parts[2], out);
+            getHexStr(sgr_parts[3], out);
+            getHexStr(sgr_parts[4], out);
             out.append(R"(">)");
             sgr_parts.pop_front();
             sgr_parts.pop_front();
@@ -334,6 +334,8 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
 // OPTIMIZATION: pass reference to modifiable out string to directly append?
 std::string ANSI_SGR2HTML::impl::detectHTMLSymbol(char symbol)
 {
+    //can't return string_view because internal data will go out of scope
+    // OPTIMIZATION: replace with static const sting_views&
     switch (symbol) {
     case '"':
         return "&quot;";
@@ -352,25 +354,19 @@ std::string ANSI_SGR2HTML::impl::detectHTMLSymbol(char symbol)
     }
 }
 
-// OPTIMIZATION: pass reference to modifiable out string to directly append?
-std::string ANSI_SGR2HTML::impl::getHexStr(unsigned int num)
+
+void ANSI_SGR2HTML::impl::getHexStr(unsigned int num, std::string& out)
 {
     //based on charconv's __to_chars_16. But have leading zero. Original to_chars don't add leading zero
-    static constexpr char digits[513] =
-            "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
-            "202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f"
-            "404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f"
-            "606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f"
-            "808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f"
-            "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf"
-            "c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf"
-            "e0e1e2e3e4e5e6e7e8e9eaebecedeeeff0f1f2f3f4f5f6f7f8f9fafbfcfdfeff";
+    static constexpr char digits[] = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        'a', 'b', 'c', 'd', 'e', 'f'
+    };
 
-    if(num >= 0x100)
-        return std::string("ff");
-
-    auto const num2 = num * 2;
-    return std::string{digits[num2], digits[num2 + 1]};
+    const auto num2 = num & 0xF;
+    num >>= 4;
+    out.push_back(digits[num]);
+    out.push_back(digits[num2]);
 }
 
 
@@ -667,54 +663,38 @@ std::string_view ANSI_SGR2HTML::impl::decodeColor256(unsigned char color_code)
     return colors_256[color_code];
 }
 
-
-//OPTIMIZATION: replace with an array?
-//Not sure if maps will be optimized as inline if defined statically inside function scope so defined in class scope
-const std::unordered_map<unsigned char, std::string_view> ANSI_SGR2HTML::impl::colors_basic_ = {
-    {30,  "#000000"},
-    {31,  "#de382b"},
-    {32,  "#39b54a"},
-    {33,  "#ffc706"},
-    {34,  "#006fb8"},
-    {35,  "#762671"},
-    {36,  "#2cb5e9"},
-    {37,  "#cccccc"},
-    {90,  "#808080"},
-    {91,  "#ff0000"},
-    {92,  "#00ff00"},
-    {93,  "#ffff00"},
-    {94,  "#0000ff"},
-    {95,  "#ff00ff"},
-    {96,  "#00ffff"},
-    {97,  "#ffffff"},
-    //same colors
-    {40,  "#000000"},
-    {41,  "#de382b"},
-    {42,  "#39b54a"},
-    {43,  "#ffc706"},
-    {44,  "#006fb8"},
-    {45,  "#762671"},
-    {46,  "#2cb5e9"},
-    {47,  "#cccccc"},
-    {100, "#808080"},
-    {101, "#ff0000"},
-    {102, "#00ff00"},
-    {103, "#ffff00"},
-    {104, "#0000ff"},
-    {105, "#ff00ff"},
-    {106, "#00ffff"},
-    {107, "#ffffff"},
-};                                                          // static definition
-
-
-
 std::string_view ANSI_SGR2HTML::impl::decodeColorBasic(unsigned char color_code)
 {
-    if(auto res = colors_basic_.find(color_code);
-            res != colors_basic_.end()) {
-        return res->second;
+    static const std::array<std::string_view, 16> colors_basic = {
+        "#000000",
+        "#de382b",
+        "#39b54a",
+        "#ffc706",
+        "#006fb8",
+        "#762671",
+        "#2cb5e9",
+        "#cccccc",
+        "#808080",
+        "#ff0000",
+        "#00ff00",
+        "#ffff00",
+        "#0000ff",
+        "#ff00ff",
+        "#00ffff",
+        "#ffffff"
+    };
+    if(color_code-30 < 8) { // range check 30-37. color_code is unsigned char so will overflow if color_code is less then 30
+        color_code = color_code-30;
+    } else if(color_code-40 < 8) {
+        color_code = color_code-40;
+    } else if(color_code-90 < 8) {
+        color_code = color_code - 90 + 8;
+    } else if(color_code-100 < 8) {
+        color_code = color_code - 100 + 8;
+    } else {
+        return "ffffff";
     }
-    return "#ffffff";
+    return colors_basic[color_code];    //no additional range check with .at() required
 }
 
 
