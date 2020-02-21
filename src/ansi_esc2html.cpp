@@ -68,9 +68,9 @@ private:
     static const std::unordered_map<unsigned char, std::string_view> colors_basic_;
 
     SGRParts splitSGR(std::string_view data);
-    std::string processSGR(SGRParts& sgr_parts/*non const!*/);
-    std::string detectHTMLSymbol(char symbol);
-    void getHexStr(unsigned int num, std::string &out);
+    void processSGR(SGRParts &&sgr_parts, std::string &out);
+    void appendHTMLSymbol(char symbol, std::string &out);
+    void appendHexStr(unsigned int num, std::string &out);
     void resetAll(std::string& out);
     void resetAttribute(unsigned int& attribute_counter, std::string& out);
     std::string_view decodeColor256(unsigned char color_code);
@@ -110,18 +110,17 @@ std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
             if (esc_set) {
                 csi_set = true;
             } else {
-                out_s.append(detectHTMLSymbol(c));
+                appendHTMLSymbol(c, out_s);
             }
             continue;
         }
         if ('m' == c) {
             if (csi_set && esc_set) {                               // end of ESC-SGR последовательности
-                auto sgr = splitSGR(param_bytes_buf);
-                out_s.append(processSGR(sgr));
+                processSGR( splitSGR(param_bytes_buf), out_s );
                 param_bytes_buf.clear();
                 csi_set = esc_set = false;                          // end of ESC
             } else {
-                out_s.append(detectHTMLSymbol(c));
+                appendHTMLSymbol(c, out_s);
             }
             continue;
         }
@@ -129,7 +128,7 @@ std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
             if (csi_set && esc_set) {
                 param_bytes_buf.push_back(c);
             } else {
-                out_s.append(detectHTMLSymbol(c));
+                appendHTMLSymbol(c, out_s);
             }
             continue;
         }
@@ -141,7 +140,7 @@ std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
             out_s.append("<br />");
             continue;
         }
-        out_s.append(detectHTMLSymbol(c));                  //default
+        appendHTMLSymbol(c, out_s);                  //default
     }
     resetAll(out_s);                                        //closes remaining tags
     out_s.append("</body>");
@@ -166,8 +165,7 @@ ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(std::string_view dat
     // ~30% faster
     unsigned char v = 0;
     bool has_digit = false;
-    for(size_t i = 0 ; i < data.size(); i++) {
-        char cc = data[i];
+    for(const char& cc: data) {
         if(isdigit(cc)) {
             v = static_cast<unsigned char>(v * 10 + (cc-'0'));  //Part of SGR are 0..255 so unsigned char overflow happen only for incorrect data.
             has_digit = true;
@@ -184,12 +182,10 @@ ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(std::string_view dat
 }
 
 
-std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
+void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any good here?*/, std::string& out/*non const!*/)
 {
-    std::string out;                                        // Think about reservation
-
     if (sgr_parts.empty())
-        return out;                                         // Nothing to parse
+        return;                                         // Nothing to parse
     unsigned char sgr_code = sgr_parts[0];
 
     switch (sgr_code) {
@@ -237,8 +233,9 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
         break;
     case 38:                                                // Set foreground color
         if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit foreground color // 38:5:⟨n⟩
-            // OPTIMIZATION: combine multiple appends? Will it be faster at cost of worse code readability
             // OPTIMIZATION: foreground and background cases are very similar. Extract them as function?
+//            static const std::string_view font_color_tag{R"(<font color=")"};
+//            out.append(font_color_tag); //OPTIMIZATION: const char* can be replaced with string_view
             out.append(R"(<font color=")");
             out.append(decodeColor256(sgr_parts[2]));
             out.append(R"(">)");
@@ -250,9 +247,9 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
             out.append(R"(<font color="#)");
-            getHexStr(sgr_parts[2], out);
-            getHexStr(sgr_parts[3], out);
-            getHexStr(sgr_parts[4], out);
+            appendHexStr(sgr_parts[2], out);
+            appendHexStr(sgr_parts[3], out);
+            appendHexStr(sgr_parts[4], out);
             out.append(R"(">)");
             sgr_parts.pop_front();
             sgr_parts.pop_front();
@@ -262,7 +259,7 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             stack_all_.push(Tag::FG_COLOR);
             counter_fg_color_++;
         } else {
-            return out;
+            return;
         }
         break;
     case 48:                                                // Set background color
@@ -278,9 +275,9 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
             out.append(R"(<span style="background-color:#)");
-            getHexStr(sgr_parts[2], out);
-            getHexStr(sgr_parts[3], out);
-            getHexStr(sgr_parts[4], out);
+            appendHexStr(sgr_parts[2], out);
+            appendHexStr(sgr_parts[3], out);
+            appendHexStr(sgr_parts[4], out);
             out.append(R"(">)");
             sgr_parts.pop_front();
             sgr_parts.pop_front();
@@ -290,7 +287,7 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
             stack_all_.push(Tag::BG_COLOR);
             counter_bg_color_++;
         } else {
-            return out;
+            return;
         }
         break;
 
@@ -325,37 +322,45 @@ std::string ANSI_SGR2HTML::impl::processSGR(SGRParts& sgr_parts/*non const!*/)
     }
 
     if (sgr_parts.empty())                                  // No more parameters
-        return out;                                         // OPTIMIZATION: same check is in the beginning of function. Is this one redundant or is it worth not to call processSGR one more time vs checks?
+        return;                                         // OPTIMIZATION: same check is in the beginning of function. Is this one redundant or is it worth not to call processSGR one more time vs checks?
 
-    out += processSGR(sgr_parts);
-    return out;
+    processSGR(std::move(sgr_parts), out);
 }
 
-// OPTIMIZATION: pass reference to modifiable out string to directly append?
-std::string ANSI_SGR2HTML::impl::detectHTMLSymbol(char symbol)
+void ANSI_SGR2HTML::impl::appendHTMLSymbol(char symbol, std::string& out)
 {
-    //can't return string_view because internal data will go out of scope
-    // OPTIMIZATION: replace with static const sting_views&
+    static const std::string_view quot{"&quot;"};
+    static const std::string_view apos{"&apos;"};
+    static const std::string_view amp {"&amp;" };
+    static const std::string_view lt  {"&lt;"  };
+    static const std::string_view gt  {"&gt;"  };
+    static const std::string_view empt{""      };
     switch (symbol) {
     case '"':
-        return "&quot;";
+        out.append(quot);
+        break;
     case '\'':
-        return "&apos;";
+        out.append(apos);
+        break;
     case '&':
-        return "&amp;";
+        out.append(amp);
+        break;
     case '<':
-        return "&lt;";
+        out.append(lt);
+        break;
     case '>':
-        return "&gt;";
+        out.append(gt);
+        break;
     case '\0':                                              //и так бывает?
-        return "";
+        out.append(empt);
+        break;
     default:
-        return std::string(&symbol, 1);
+        out.append(&symbol, 1);
     }
 }
 
 
-void ANSI_SGR2HTML::impl::getHexStr(unsigned int num, std::string& out)
+void ANSI_SGR2HTML::impl::appendHexStr(unsigned int num, std::string& out)
 {
     //based on charconv's __to_chars_16. But have leading zero. Original to_chars don't add leading zero
     static constexpr char digits[] = {
@@ -709,7 +714,7 @@ void ANSI_SGR2HTML::impl::resetAttribute(unsigned int& attribute_counter, std::s
     for(;attribute_counter>0; --attribute_counter) {
         out.append(tag_value[static_cast<int>(stack_all_.top())]);
         stack_all_.pop();
-      }
+    }
 }
 
 
@@ -720,8 +725,7 @@ ANSI_SGR2HTML::ANSI_SGR2HTML() :
 }
 
 ANSI_SGR2HTML::~ANSI_SGR2HTML()
-{
-}
+= default;
 
 std::string ANSI_SGR2HTML::simpleParse(const std::string &raw_data)
 {
