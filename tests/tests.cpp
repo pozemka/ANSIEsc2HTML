@@ -28,6 +28,12 @@ TEST_CASE( "empty strings", "[empty]" ) {
         std::string res = a2h.simpleParse("\x1b[m");
         CHECK(res == body_start+body_end);
     }
+    SECTION( "string with \\0" ) {
+        std::string ab("a_b");
+        ab[1] = '\0';
+        std::string res = a2h.simpleParse(ab);
+        CHECK(res == body_start+"ab"+body_end);
+    }
     SECTION( "unsupported params" ) {
         // ideogram attributes are not supported
         std::string res = a2h.simpleParse("\x1b[62m\x1b[65m");

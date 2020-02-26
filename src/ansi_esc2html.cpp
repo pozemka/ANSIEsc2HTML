@@ -70,7 +70,7 @@ private:
     SGRParts splitSGR(std::string_view data);
     void processSGR(SGRParts &&sgr_parts, std::string &out);
     void appendHTMLSymbol(char symbol, std::string &out);
-    void appendHexStr(unsigned int num, std::string &out);
+    void appendHexNumber(unsigned int num, std::string &out);
     void resetAll(std::string& out);
     void resetAttribute(unsigned int& attribute_counter, std::string& out);
     std::string_view decodeColor256(unsigned char color_code);
@@ -194,7 +194,7 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
         break;
 
     case 1:                                                 // Bold or increased intensity
-        out.append("<b>");  //string literals can be replaced with string_view constants with no measured performance difference
+        out.append("<b>");
         stack_all_.push(Tag::BOLD);
         counter_intensity_++;
         break;
@@ -235,27 +235,21 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
         if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit foreground color // 38:5:⟨n⟩
             // OPTIMIZATION: foreground and background cases are very similar. Extract them as function?
 //            static const std::string_view font_color_tag{R"(<font color=")"};
-//            out.append(font_color_tag); //OPTIMIZATION: const char* can be replaced with string_view
+//            out.append(font_color_tag); // OPTIMIZATION: const char* can be replaced with string_view
             out.append(R"(<font color=")");
             out.append(decodeColor256(sgr_parts[2]));
             out.append(R"(">)");
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
+            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
             stack_all_.push(Tag::FG_COLOR);
             counter_fg_color_++;
             // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
             out.append(R"(<font color="#)");
-            appendHexStr(sgr_parts[2], out);
-            appendHexStr(sgr_parts[3], out);
-            appendHexStr(sgr_parts[4], out);
+            appendHexNumber(sgr_parts[2], out);
+            appendHexNumber(sgr_parts[3], out);
+            appendHexNumber(sgr_parts[4], out);
             out.append(R"(">)");
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
+            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
             stack_all_.push(Tag::FG_COLOR);
             counter_fg_color_++;
         } else {
@@ -267,23 +261,17 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             out.append(R"(<span style="background-color:)");
             out.append(decodeColor256(sgr_parts[2]));
             out.append(R"(">)");
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
+            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
             stack_all_.push(Tag::BG_COLOR);
             counter_bg_color_++;
             // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
             out.append(R"(<span style="background-color:#)");
-            appendHexStr(sgr_parts[2], out);
-            appendHexStr(sgr_parts[3], out);
-            appendHexStr(sgr_parts[4], out);
+            appendHexNumber(sgr_parts[2], out);
+            appendHexNumber(sgr_parts[3], out);
+            appendHexNumber(sgr_parts[4], out);
             out.append(R"(">)");
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
-            sgr_parts.pop_front();
+            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
             stack_all_.push(Tag::BG_COLOR);
             counter_bg_color_++;
         } else {
@@ -324,7 +312,7 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
     if (sgr_parts.empty())                                  // No more parameters
         return;                                         // OPTIMIZATION: same check is in the beginning of function. Is this one redundant or is it worth not to call processSGR one more time vs checks?
 
-    processSGR(std::move(sgr_parts), out);
+    processSGR(std::forward<SGRParts>(sgr_parts), out);
 }
 
 void ANSI_SGR2HTML::impl::appendHTMLSymbol(char symbol, std::string& out)
@@ -334,7 +322,6 @@ void ANSI_SGR2HTML::impl::appendHTMLSymbol(char symbol, std::string& out)
     static const std::string_view amp {"&amp;" };
     static const std::string_view lt  {"&lt;"  };
     static const std::string_view gt  {"&gt;"  };
-    static const std::string_view empt{""      };
     switch (symbol) {
     case '"':
         out.append(quot);
@@ -351,8 +338,7 @@ void ANSI_SGR2HTML::impl::appendHTMLSymbol(char symbol, std::string& out)
     case '>':
         out.append(gt);
         break;
-    case '\0':                                              //и так бывает?
-        out.append(empt);
+    case '\0':  //\0 is isgnored.
         break;
     default:
         out.append(&symbol, 1);
@@ -360,7 +346,7 @@ void ANSI_SGR2HTML::impl::appendHTMLSymbol(char symbol, std::string& out)
 }
 
 
-void ANSI_SGR2HTML::impl::appendHexStr(unsigned int num, std::string& out)
+void ANSI_SGR2HTML::impl::appendHexNumber(unsigned int num, std::string& out)
 {
     //based on charconv's __to_chars_16. But have leading zero. Original to_chars don't add leading zero
     static constexpr char digits[] = {
