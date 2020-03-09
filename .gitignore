@@ -7,3 +7,5 @@ Doxyfile
 build/
 ANSI_SGR2HTML.kdev4
 .kdev4/
+ANSIEsc2HTML.pro.user
+*.o
