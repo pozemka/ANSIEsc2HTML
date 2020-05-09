@@ -1,0 +1,41 @@
+name: Build an dtest
+
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: configure
+      shell: bash
+      run: |
+        mkdir build
+        cd build/
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        
+    - name: make
+      shell: bash
+      run: |
+        cd build/
+        make
+
+    - name: run test
+      run: |
+        build/tests > res.txt
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        # Artifact name
+        name: test-result.txt # optional
+        # A file, directory or wildcard pattern that describes what to upload
+        path: res.txt
