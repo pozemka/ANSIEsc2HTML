@@ -52,7 +52,7 @@ private:
         BG_COLOR
     };
 
-    static constexpr std::string_view tag_value[] = {
+    static constexpr std::string_view close_tag_value[] = {
         // It would be nice place to have designated initializer for arrays in C++:
         // [Tag::BOLD] = "</b>",
         // instead of error-prone:
@@ -63,6 +63,18 @@ private:
         "</font>",
         "</span>"
     };
+    
+    static constexpr std::string_view open_tag_value[] = {
+        // It would be nice place to have designated initializer for arrays in C++:
+        // [Tag::BOLD] = "</b>",
+        // instead of error-prone:
+        "<b>",
+        "<i>",
+        "<u>",
+        "<s>",
+        "<font>",
+        "<span>"
+    };
 
     //can't constexpr maps so other trick is used
     static const std::unordered_map<unsigned char, std::string_view> colors_basic_;
@@ -72,11 +84,12 @@ private:
     void appendHTMLSymbol(char symbol, std::string &out);
     void appendHexNumber(unsigned int num, std::string &out);
     void resetAll(std::string& out);
-    void resetAttribute(unsigned int& attribute_counter, std::string& out);
+    void resetAttribute(Tag attribute, unsigned int& attribute_counter, std::string& out);
     std::string_view decodeColor256(unsigned char color_code);
     std::string_view decodeColorBasic(unsigned char color_code);
 
     std::stack<Tag> stack_all_;
+    std::stack<Tag> stack_reopen_;   //!< stack to reopen after tag close
     unsigned int counter_intensity_ = 0;
     unsigned int counter_italic_    = 0;
     unsigned int counter_underline_ = 0;
@@ -214,22 +227,22 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
         counter_cross_out_++;
         break;
     case 22:                                                // Normal color or intensity
-        resetAttribute(counter_intensity_, out);
+        resetAttribute(Tag::BOLD, counter_intensity_, out);
         break;
     case 23:                                                // Not italic, not Fraktur
-        resetAttribute(counter_italic_, out);
+        resetAttribute(Tag::ITALIC, counter_italic_, out);
         break;
     case 24:                                                // Underline off
-        resetAttribute(counter_underline_, out);
+        resetAttribute(Tag::UNDERLINE, counter_underline_, out);
         break;
     case 29:                                                // Not crossed out
-        resetAttribute(counter_cross_out_, out);
+        resetAttribute(Tag::CROSS_OUT, counter_cross_out_, out);
         break;
     case 39:                                                // Default foreground color
-        resetAttribute(counter_fg_color_, out);
+        resetAttribute(Tag::FG_COLOR, counter_fg_color_, out);
         break;
     case 49:                                                // Default background color
-        resetAttribute(counter_bg_color_, out);
+        resetAttribute(Tag::BG_COLOR, counter_bg_color_, out);
         break;
     case 38:                                                // Set foreground color
         if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit foreground color // 38:5:⟨n⟩
@@ -363,12 +376,10 @@ void ANSI_SGR2HTML::impl::appendHexNumber(unsigned int num, std::string& out)
 
 void ANSI_SGR2HTML::impl::resetAll(std::string& out)
 {
-    resetAttribute(counter_intensity_, out);
-    resetAttribute(counter_italic_   , out);
-    resetAttribute(counter_underline_, out);
-    resetAttribute(counter_cross_out_, out);
-    resetAttribute(counter_fg_color_ , out);
-    resetAttribute(counter_bg_color_ , out);
+    while(!stack_all_.empty()) {
+        out.append(close_tag_value[static_cast<int>(stack_all_.top())]);
+        stack_all_.pop();
+    }
 }
 
 
@@ -691,15 +702,29 @@ std::string_view ANSI_SGR2HTML::impl::decodeColorBasic(unsigned char color_code)
 
 /**
  * @brief ANSI_SGR2HTML::impl::resetAttribute
+ * @param tag
  * @param attribute_counter
  * @param out
  * NOTE: attribute_counter passed as reference
+ * TODO: PoC of any close order. Can be issues when more then one tag for attribute (bold/faint for example). Colors don't work. Not optimized
  */
-void ANSI_SGR2HTML::impl::resetAttribute(unsigned int& attribute_counter, std::string& out)
+void ANSI_SGR2HTML::impl::resetAttribute(Tag tag, unsigned int& attribute_counter, std::string& out)
 {
     for(;attribute_counter>0; --attribute_counter) {
-        out.append(tag_value[static_cast<int>(stack_all_.top())]);
+        Tag toptag = stack_all_.top();
+        while(toptag != tag) {
+            stack_reopen_.push(stack_all_.top());
+            out.append(close_tag_value[static_cast<int>(stack_all_.top())]);
+            stack_all_.pop();
+            toptag = stack_all_.top();
+        }
+        out.append(close_tag_value[static_cast<int>(stack_all_.top())]);
         stack_all_.pop();
+        while(!stack_reopen_.empty()) {
+            out.append(open_tag_value[static_cast<int>(stack_reopen_.top())]);
+            stack_all_.push(stack_reopen_.top());
+            stack_reopen_.pop();
+        }
     }
 }
 
