@@ -80,7 +80,7 @@ private:
     static const std::unordered_map<unsigned char, std::string_view> colors_basic_;
 
     SGRParts splitSGR(std::string_view data);
-    void processSGR(SGRParts &&sgr_parts, std::string &out);
+    void processSGR(SGRParts &&sgr_parts, std::string &out, bool tags_as_strings = false);
     void appendHTMLSymbol(char symbol, std::string &out);
     void appendHexNumber(unsigned int num, std::string &out);
     void resetAll(std::string& out);
@@ -90,6 +90,8 @@ private:
 
     std::stack<Tag> stack_all_;
     std::stack<Tag> stack_reopen_;   //!< stack to reopen after tag close
+    std::stack<std::string> string_stack_all_;
+    std::stack<std::string> string_stack_reopen_;
     unsigned int counter_intensity_ = 0;
     unsigned int counter_italic_    = 0;
     unsigned int counter_underline_ = 0;
@@ -194,8 +196,9 @@ ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(std::string_view dat
     return sgr_parts;
 }
 
-
-void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any good here?*/, std::string& out/*non const!*/)
+//NOTE: 1016[µs] without branching
+//1086 with branching
+void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any good here?*/, std::string& out/*non const!*/, bool tags_as_strings)
 {
     if (sgr_parts.empty())
         return;                                         // Nothing to parse
@@ -205,25 +208,36 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
     case 0:                                                 // Reset / Normal	all attributes off
         resetAll(out);
         break;
-
     case 1:                                                 // Bold or increased intensity
         out.append("<b>");
-        stack_all_.push(Tag::BOLD);
+        if(tags_as_strings)
+            string_stack_all_.push("<b>");
+        else
+            stack_all_.push(Tag::BOLD);
         counter_intensity_++;
         break;
     case 3:                                                 // Italic
         out.append("<i>");
-        stack_all_.push(Tag::ITALIC);
+        if(tags_as_strings)
+            string_stack_all_.push("<i>");
+        else
+            stack_all_.push(Tag::ITALIC);
         counter_italic_++;
         break;
     case 4:                                                 // Underline
         out.append("<u>");
-        stack_all_.push(Tag::UNDERLINE);
+        if(tags_as_strings)
+            string_stack_all_.push("<u>");
+        else
+            stack_all_.push(Tag::UNDERLINE);
         counter_underline_++;
         break;
     case 9:                                                 // Crossed-out
         out.append("<s>");
-        stack_all_.push(Tag::CROSS_OUT);
+        if(tags_as_strings)
+            string_stack_all_.push("<s>");
+        else
+            stack_all_.push(Tag::CROSS_OUT);
         counter_cross_out_++;
         break;
     case 22:                                                // Normal color or intensity
@@ -253,7 +267,16 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             out.append(decodeColor256(sgr_parts[2]));
             out.append(R"(">)");
             sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
-            stack_all_.push(Tag::FG_COLOR);
+            if(tags_as_strings) {
+                std::string ts;
+                ts.reserve(22);
+                ts.append(R"(<font color=")");
+                ts.append(decodeColor256(sgr_parts[2]));
+                ts.append(R"(">)");
+                string_stack_all_.push(ts);
+            } else {
+                stack_all_.push(Tag::FG_COLOR);
+            }
             counter_fg_color_++;
             // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
@@ -263,7 +286,18 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             appendHexNumber(sgr_parts[4], out);
             out.append(R"(">)");
             sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
-            stack_all_.push(Tag::FG_COLOR);
+            if(tags_as_strings) {
+                std::string ts;
+                ts.reserve(22);
+                ts.append(R"(<font color="#)");
+                appendHexNumber(sgr_parts[2], ts);
+                appendHexNumber(sgr_parts[3], ts);
+                appendHexNumber(sgr_parts[4], ts);
+                ts.append(R"(">)");
+                string_stack_all_.push(ts);
+            } else {
+                stack_all_.push(Tag::FG_COLOR);
+            }
             counter_fg_color_++;
         } else {
             return;
@@ -275,7 +309,16 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             out.append(decodeColor256(sgr_parts[2]));
             out.append(R"(">)");
             sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
-            stack_all_.push(Tag::BG_COLOR);
+            if(tags_as_strings) {
+                std::string ts;
+                ts.reserve(39);
+                ts.append(R"(<span style="background-color:)");
+                ts.append(decodeColor256(sgr_parts[2]));
+                ts.append(R"(">)");
+                string_stack_all_.push(ts);
+            } else {
+                stack_all_.push(Tag::BG_COLOR);
+            }
             counter_bg_color_++;
             // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
@@ -285,7 +328,18 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             appendHexNumber(sgr_parts[4], out);
             out.append(R"(">)");
             sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
-            stack_all_.push(Tag::BG_COLOR);
+            if(tags_as_strings) {
+                std::string ts;
+                ts.reserve(39);
+                ts.append(R"(<span style="background-color:#)");
+                appendHexNumber(sgr_parts[2], ts);
+                appendHexNumber(sgr_parts[3], ts);
+                appendHexNumber(sgr_parts[4], ts);
+                ts.append(R"(">)");
+                string_stack_all_.push(ts);
+            } else {
+                stack_all_.push(Tag::BG_COLOR);
+            }
             counter_bg_color_++;
         } else {
             return;
@@ -301,7 +355,16 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             out.append(R"(<font color=")");                 // Not very beautilful string construction. Can use {fmt} or wait for С++20 with eel.is/c++draft/format.
             out.append(decodeColorBasic(sgr_code));
             out.append(R"(">)");
-            stack_all_.push(Tag::FG_COLOR);
+            if(tags_as_strings) {
+                std::string ts;
+                ts.reserve(22);
+                ts.append(R"(<font color=")");
+                ts.append(decodeColorBasic(sgr_code));
+                ts.append(R"(">)");
+                string_stack_all_.push(ts);
+            } else {
+                stack_all_.push(Tag::FG_COLOR);
+            }
             counter_fg_color_++;
         } else if (
                    (40 <= sgr_code && 47 >= sgr_code) ||
@@ -310,7 +373,16 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             out.append(R"(<span style="background-color:)");
             out.append(decodeColorBasic(sgr_code));
             out.append(R"(">)");
-            stack_all_.push(Tag::BG_COLOR);
+            if(tags_as_strings) {
+                std::string ts;
+                ts.reserve(39);
+                ts.append(R"(<span style="background-color:)");
+                ts.append(decodeColorBasic(sgr_code));
+                ts.append(R"(">)");
+                string_stack_all_.push(ts);
+            } else {
+                stack_all_.push(Tag::BG_COLOR);
+            }
             counter_bg_color_++;
         } else {
 //            std::cerr << "ANSI_SGR2HTML: unsupported SGR: " <<  static_cast<unsigned int>(sgr_code) << std::endl;
@@ -727,7 +799,6 @@ void ANSI_SGR2HTML::impl::resetAttribute(Tag tag, unsigned int& attribute_counte
         }
     }
 }
-
 
 // ANSI_SGR2HTML
 ANSI_SGR2HTML::ANSI_SGR2HTML() :
