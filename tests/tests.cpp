@@ -172,6 +172,40 @@ TEST_CASE( "basic bad inputs for simpleParse", "[basic_bad_simple]") {
     }
 }
 
+
+// NOTE: HTML produced from bad input is valid and matching input but not always optimal.
+TEST_CASE( "basic bad inputs for strictParse", "[basic_bad_strict]") {
+    ANSI_SGR2HTML a2h;
+    auto [section, test_case] = GENERATE( table<std::string, AE2HTestCase>({
+        {"Not closed parameter",
+            {"\x1b[48;5;141m background color ",
+                R"(<span style="background-color:#af87ff"> background color </span>)"}},
+        {"Wrong close parameter",
+            {"\x1b[42m open bg close fg \x1b[39m",
+                R"(<span style="background-color:#39b54a"> open bg close fg </span>)"}},
+        {"bg+fg colors wrong close order",
+            {"\x1b[42;36m green bg cyan fg \x1b[49;39m",
+                R"(<span style="background-color:#39b54a"><font color="#2cb5e9"> green bg cyan fg </font></span><font color="#2cb5e9"></font>)"}},  //rare example of reopening tags at the end
+        {"bg+fg+bold then fg+bold",
+            {"\x1b[38;5;208;48;5;141;1m EvErYtHiNg \x1b[49m EvErYtHiNg but background",
+                R"(<font color="#ff8700"><span style="background-color:#af87ff"><b> EvErYtHiNg </b></span><b> EvErYtHiNg but background</b></font>)"}},
+
+        {"broken sgrs",
+            {"\x1b[62\x1b[65aaa",
+                R"()"}},
+        {"broken sgrs then close then text",
+            {"\x1b[62\x1b[65aaambbb",
+                R"(bbb)"}},
+        {"broken sgr then correct one",
+            {"\x1b[31\x1b[32m aaa",
+                R"(<font color="#39b54a"> aaa</font>)"}}
+    }));
+    GIVEN( section )
+    THEN( "output should be " << test_case.expected ) {
+        CHECK(a2h.strictParse(test_case.input) == body_start+test_case.expected+body_end);
+    }
+}
+
 TEST_CASE( "Unsupported CSIs for simpleParse", "[unsupported_csi_simple]") {
     ANSI_SGR2HTML a2h;
     auto [section, test_case] = GENERATE( table<std::string, AE2HTestCase>({

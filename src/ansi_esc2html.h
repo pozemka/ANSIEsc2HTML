@@ -45,6 +45,9 @@ public:
      * @return HTML string
      */
     std::string simpleParse(const std::string& raw_data);
+    /**
+     */
+    std::string strictParse(const std::string& raw_data);
 
     ANSI_SGR2HTML(const ANSI_SGR2HTML &other) = delete;
     ANSI_SGR2HTML(ANSI_SGR2HTML &&other) = delete;

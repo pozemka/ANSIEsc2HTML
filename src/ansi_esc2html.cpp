@@ -39,7 +39,7 @@ class ANSI_SGR2HTML::impl
 {
     using SGRParts = std::deque<unsigned char>;
 public:
-    std::string simpleParse(const std::string& raw_data);
+    std::string parse(std::string_view raw_data, bool strict);
     
 private:
     const char C_ESC = 0x1B;    //Esc ASCII code
@@ -80,11 +80,11 @@ private:
     static const std::unordered_map<unsigned char, std::string_view> colors_basic_;
 
     SGRParts splitSGR(std::string_view data);
-    void processSGR(SGRParts &&sgr_parts, std::string &out, bool tags_as_strings = false);
+    void processSGR(SGRParts &&sgr_parts, std::string &out, bool strict = false);
     void appendHTMLSymbol(char symbol, std::string &out);
     void appendHexNumber(unsigned int num, std::string &out);
-    void resetAll(std::string& out);
-    void resetAttribute(Tag attribute, unsigned int& attribute_counter, std::string& out);
+    void resetAll(std::string& out, bool strict);
+    void resetAttribute(Tag attribute, unsigned int& attribute_counter, std::string& out, bool strict);
     std::string_view decodeColor256(unsigned char color_code);
     std::string_view decodeColorBasic(unsigned char color_code);
 
@@ -100,8 +100,7 @@ private:
     unsigned int counter_bg_color_  = 0;
 };
 
-
-std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
+std::string ANSI_SGR2HTML::impl::parse(std::string_view raw_data, bool strict)
 {
     std::string out_s;
     std::string param_bytes_buf;
@@ -131,7 +130,7 @@ std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
         }
         if ('m' == c) {
             if (csi_set && esc_set) {                               // end of ESC-SGR последовательности
-                processSGR( splitSGR(param_bytes_buf), out_s );
+                processSGR( splitSGR(param_bytes_buf), out_s, strict);
                 param_bytes_buf.clear();
                 csi_set = esc_set = false;                          // end of ESC
             } else {
@@ -157,7 +156,7 @@ std::string ANSI_SGR2HTML::impl::simpleParse(const std::string &raw_data)
         }
         appendHTMLSymbol(c, out_s);                  //default
     }
-    resetAll(out_s);                                        //closes remaining tags
+    resetAll(out_s, strict);                                //closes remaining tags
     out_s.append("</body>");
     return out_s;
 }
@@ -197,8 +196,10 @@ ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(std::string_view dat
 }
 
 //NOTE: 1016[µs] without branching
-//1086 with branching
-void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any good here?*/, std::string& out/*non const!*/, bool tags_as_strings)
+//      1071 with branching
+//      1502 with tas enabled
+//TODO: 
+void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any good here?*/, std::string& out/*non const!*/, bool strict)
 {
     if (sgr_parts.empty())
         return;                                         // Nothing to parse
@@ -206,57 +207,53 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
 
     switch (sgr_code) {
     case 0:                                                 // Reset / Normal	all attributes off
-        resetAll(out);
+        resetAll(out, strict);
         break;
     case 1:                                                 // Bold or increased intensity
         out.append("<b>");
-        if(tags_as_strings)
+        if(strict)
             string_stack_all_.push("<b>");
-        else
-            stack_all_.push(Tag::BOLD);
+        stack_all_.push(Tag::BOLD);
         counter_intensity_++;
         break;
     case 3:                                                 // Italic
         out.append("<i>");
-        if(tags_as_strings)
+        if(strict)
             string_stack_all_.push("<i>");
-        else
-            stack_all_.push(Tag::ITALIC);
+        stack_all_.push(Tag::ITALIC);
         counter_italic_++;
         break;
     case 4:                                                 // Underline
         out.append("<u>");
-        if(tags_as_strings)
+        if(strict)
             string_stack_all_.push("<u>");
-        else
-            stack_all_.push(Tag::UNDERLINE);
+        stack_all_.push(Tag::UNDERLINE);
         counter_underline_++;
         break;
     case 9:                                                 // Crossed-out
         out.append("<s>");
-        if(tags_as_strings)
+        if(strict)
             string_stack_all_.push("<s>");
-        else
-            stack_all_.push(Tag::CROSS_OUT);
+        stack_all_.push(Tag::CROSS_OUT);
         counter_cross_out_++;
         break;
     case 22:                                                // Normal color or intensity
-        resetAttribute(Tag::BOLD, counter_intensity_, out);
+        resetAttribute(Tag::BOLD, counter_intensity_, out, strict);
         break;
     case 23:                                                // Not italic, not Fraktur
-        resetAttribute(Tag::ITALIC, counter_italic_, out);
+        resetAttribute(Tag::ITALIC, counter_italic_, out, strict);
         break;
     case 24:                                                // Underline off
-        resetAttribute(Tag::UNDERLINE, counter_underline_, out);
+        resetAttribute(Tag::UNDERLINE, counter_underline_, out, strict);
         break;
     case 29:                                                // Not crossed out
-        resetAttribute(Tag::CROSS_OUT, counter_cross_out_, out);
+        resetAttribute(Tag::CROSS_OUT, counter_cross_out_, out, strict);
         break;
     case 39:                                                // Default foreground color
-        resetAttribute(Tag::FG_COLOR, counter_fg_color_, out);
+        resetAttribute(Tag::FG_COLOR, counter_fg_color_, out, strict);
         break;
     case 49:                                                // Default background color
-        resetAttribute(Tag::BG_COLOR, counter_bg_color_, out);
+        resetAttribute(Tag::BG_COLOR, counter_bg_color_, out, strict);
         break;
     case 38:                                                // Set foreground color
         if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit foreground color // 38:5:⟨n⟩
@@ -267,16 +264,15 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             out.append(decodeColor256(sgr_parts[2]));
             out.append(R"(">)");
             sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
-            if(tags_as_strings) {
+            if(strict) {
                 std::string ts;
                 ts.reserve(22);
                 ts.append(R"(<font color=")");
                 ts.append(decodeColor256(sgr_parts[2]));
                 ts.append(R"(">)");
                 string_stack_all_.push(ts);
-            } else {
-                stack_all_.push(Tag::FG_COLOR);
-            }
+            } 
+            stack_all_.push(Tag::FG_COLOR);
             counter_fg_color_++;
             // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
@@ -286,7 +282,7 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             appendHexNumber(sgr_parts[4], out);
             out.append(R"(">)");
             sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
-            if(tags_as_strings) {
+            if(strict) {
                 std::string ts;
                 ts.reserve(22);
                 ts.append(R"(<font color="#)");
@@ -295,9 +291,8 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
                 appendHexNumber(sgr_parts[4], ts);
                 ts.append(R"(">)");
                 string_stack_all_.push(ts);
-            } else {
-                stack_all_.push(Tag::FG_COLOR);
-            }
+            } 
+            stack_all_.push(Tag::FG_COLOR);
             counter_fg_color_++;
         } else {
             return;
@@ -309,16 +304,15 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             out.append(decodeColor256(sgr_parts[2]));
             out.append(R"(">)");
             sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
-            if(tags_as_strings) {
+            if(strict) {
                 std::string ts;
                 ts.reserve(39);
                 ts.append(R"(<span style="background-color:)");
                 ts.append(decodeColor256(sgr_parts[2]));
                 ts.append(R"(">)");
                 string_stack_all_.push(ts);
-            } else {
-                stack_all_.push(Tag::BG_COLOR);
             }
+            stack_all_.push(Tag::BG_COLOR);
             counter_bg_color_++;
             // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
@@ -328,7 +322,7 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             appendHexNumber(sgr_parts[4], out);
             out.append(R"(">)");
             sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
-            if(tags_as_strings) {
+            if(strict) {
                 std::string ts;
                 ts.reserve(39);
                 ts.append(R"(<span style="background-color:#)");
@@ -337,9 +331,8 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
                 appendHexNumber(sgr_parts[4], ts);
                 ts.append(R"(">)");
                 string_stack_all_.push(ts);
-            } else {
-                stack_all_.push(Tag::BG_COLOR);
-            }
+            } 
+            stack_all_.push(Tag::BG_COLOR);
             counter_bg_color_++;
         } else {
             return;
@@ -355,16 +348,15 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             out.append(R"(<font color=")");                 // Not very beautilful string construction. Can use {fmt} or wait for С++20 with eel.is/c++draft/format.
             out.append(decodeColorBasic(sgr_code));
             out.append(R"(">)");
-            if(tags_as_strings) {
+            if(strict) {
                 std::string ts;
                 ts.reserve(22);
                 ts.append(R"(<font color=")");
                 ts.append(decodeColorBasic(sgr_code));
                 ts.append(R"(">)");
                 string_stack_all_.push(ts);
-            } else {
-                stack_all_.push(Tag::FG_COLOR);
-            }
+            } 
+            stack_all_.push(Tag::FG_COLOR);
             counter_fg_color_++;
         } else if (
                    (40 <= sgr_code && 47 >= sgr_code) ||
@@ -373,16 +365,15 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
             out.append(R"(<span style="background-color:)");
             out.append(decodeColorBasic(sgr_code));
             out.append(R"(">)");
-            if(tags_as_strings) {
+            if(strict) {
                 std::string ts;
                 ts.reserve(39);
                 ts.append(R"(<span style="background-color:)");
                 ts.append(decodeColorBasic(sgr_code));
                 ts.append(R"(">)");
                 string_stack_all_.push(ts);
-            } else {
-                stack_all_.push(Tag::BG_COLOR);
-            }
+            } 
+            stack_all_.push(Tag::BG_COLOR);
             counter_bg_color_++;
         } else {
 //            std::cerr << "ANSI_SGR2HTML: unsupported SGR: " <<  static_cast<unsigned int>(sgr_code) << std::endl;
@@ -397,7 +388,7 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
     if (sgr_parts.empty())                                  // No more parameters
         return;                                         // OPTIMIZATION: same check is in the beginning of function. Is this one redundant or is it worth not to call processSGR one more time vs checks?
 
-    processSGR(std::forward<SGRParts>(sgr_parts), out);
+    processSGR(std::forward<SGRParts>(sgr_parts), out, strict);
 }
 
 void ANSI_SGR2HTML::impl::appendHTMLSymbol(char symbol, std::string& out)
@@ -446,11 +437,14 @@ void ANSI_SGR2HTML::impl::appendHexNumber(unsigned int num, std::string& out)
 }
 
 
-void ANSI_SGR2HTML::impl::resetAll(std::string& out)
+void ANSI_SGR2HTML::impl::resetAll(std::string& out, bool strict)
 {
     while(!stack_all_.empty()) {
         out.append(close_tag_value[static_cast<int>(stack_all_.top())]);
         stack_all_.pop();
+    }
+    if(strict) {
+        string_stack_all_ = std::stack<std::string>();
     }
 }
 
@@ -778,24 +772,37 @@ std::string_view ANSI_SGR2HTML::impl::decodeColorBasic(unsigned char color_code)
  * @param attribute_counter
  * @param out
  * NOTE: attribute_counter passed as reference
- * TODO: PoC of any close order. Can be issues when more then one tag for attribute (bold/faint for example). Colors don't work. Not optimized
+ * TODO: try to replace stack with vector
  */
-void ANSI_SGR2HTML::impl::resetAttribute(Tag tag, unsigned int& attribute_counter, std::string& out)
+void ANSI_SGR2HTML::impl::resetAttribute(Tag tag, unsigned int& attribute_counter, std::string& out, bool strict)
 {
-    for(;attribute_counter>0; --attribute_counter) {
-        Tag toptag = stack_all_.top();
-        while(toptag != tag) {
-            stack_reopen_.push(stack_all_.top());
+    if(strict) {
+        for(;attribute_counter>0; --attribute_counter) {
+            Tag toptag = stack_all_.top();
+            while(toptag != tag) {
+                stack_reopen_.push(stack_all_.top());
+                string_stack_reopen_.push(string_stack_all_.top()); 
+                out.append(close_tag_value[static_cast<int>(stack_all_.top())]);
+                //             out.append(string_stack_all_.top());
+                stack_all_.pop();
+                string_stack_all_.pop();
+                toptag = stack_all_.top();
+            }
             out.append(close_tag_value[static_cast<int>(stack_all_.top())]);
             stack_all_.pop();
-            toptag = stack_all_.top();
+            while(!stack_reopen_.empty()) {
+                //             out.append(open_tag_value[static_cast<int>(stack_reopen_.top())]);
+                out.append(string_stack_reopen_.top());
+                stack_all_.push(stack_reopen_.top());
+                string_stack_all_.push(string_stack_reopen_.top());
+                stack_reopen_.pop();
+                string_stack_reopen_.pop();
+            }
         }
-        out.append(close_tag_value[static_cast<int>(stack_all_.top())]);
-        stack_all_.pop();
-        while(!stack_reopen_.empty()) {
-            out.append(open_tag_value[static_cast<int>(stack_reopen_.top())]);
-            stack_all_.push(stack_reopen_.top());
-            stack_reopen_.pop();
+    } else {
+        for(;attribute_counter>0; --attribute_counter) {
+            out.append(close_tag_value[static_cast<int>(stack_all_.top())]);
+            stack_all_.pop();
         }
     }
 }
@@ -811,5 +818,10 @@ ANSI_SGR2HTML::~ANSI_SGR2HTML()
 
 std::string ANSI_SGR2HTML::simpleParse(const std::string &raw_data)
 {
-    return pimpl_->simpleParse(raw_data);
+    return pimpl_->parse(raw_data, false);
+}
+
+std::string ANSI_SGR2HTML::strictParse(const std::string &raw_data)
+{
+    return pimpl_->parse(raw_data, true);
 }
