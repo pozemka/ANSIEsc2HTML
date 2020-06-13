@@ -149,6 +149,9 @@ TEST_CASE( "basic bad inputs for simpleParse", "[basic_bad_simple]") {
         {"Wrong close parameter",
             {"\x1b[42m open bg close fg \x1b[39m",
                 R"(<span style="background-color:#39b54a"> open bg close fg </span>)"}},
+        {"Close without open",
+            {"close fg \x1b[39m aaa",
+                R"(close fg  aaa)"}},
         {"bg+fg colors wrong close order",
             {"\x1b[42;36m green bg cyan fg \x1b[49;39m",
                 R"(<span style="background-color:#39b54a"><font color="#2cb5e9"> green bg cyan fg </font></span>)"}},
@@ -183,6 +186,9 @@ TEST_CASE( "basic bad inputs for strictParse", "[basic_bad_strict]") {
         {"Wrong close parameter",
             {"\x1b[42m open bg close fg \x1b[39m",
                 R"(<span style="background-color:#39b54a"> open bg close fg </span>)"}},
+        {"Close without open",
+            {"close fg \x1b[39m aaa",
+                R"(close fg  aaa)"}},                                                                   
         {"bg+fg colors wrong close order",
             {"\x1b[42;36m green bg cyan fg \x1b[49;39m",
                 R"(<span style="background-color:#39b54a"><font color="#2cb5e9"> green bg cyan fg </font></span><font color="#2cb5e9"></font>)"}},  //rare example of reopening tags at the end
@@ -228,4 +234,37 @@ TEST_CASE( "Unsupported CSIs for simpleParse", "[unsupported_csi_simple]") {
 
 TEST_CASE( "complex bad inputs for simpleParse", "[complex_bad_simple]") {
     ANSI_SGR2HTML a2h;
+}
+
+TEST_CASE( "strict and simple. no throw test", "[no_throw]") {
+    ANSI_SGR2HTML a2h;
+    auto test_case = GENERATE( 
+        "\x1b[128m unsupported \x1b[49m",
+        "\x1b[9A",
+        "\x1b[1;5H",
+        "\x1b[9A\x1b[1m bold TEXT \x1b[22m",
+        "\x1b[48;5;141m background color ",
+        "\x1b[42m open bg close fg \x1b[39m",
+        "close fg \x1b[39m aaa",
+        "\x1b[42;36m green bg cyan fg \x1b[49;39m",
+        "\x1b[38;5;208;48;5;141;1m EvErYtHiNg \x1b[49m EvErYtHiNg but background",
+        "\x1b[62\x1b[65aaa",
+        "\x1b[62\x1b[65aaambbb",
+        "\x1b[31\x1b[32m aaa",
+        R"([42;36m green bg cyan fg [49;39m [38;5;208;48;5;141;1m EvErYtHiNg [49m EvErYtHiNg but background)"
+    );
+    SECTION( "simpleParse" ) {
+        REQUIRE_NOTHROW(a2h.simpleParse(test_case));
+    }
+    SECTION( "strictParse" ) {
+        REQUIRE_NOTHROW(a2h.strictParse(test_case));
+    }
+    SECTION( "simpleParse then strictParse" ) {
+        REQUIRE_NOTHROW(a2h.simpleParse(test_case));
+        REQUIRE_NOTHROW(a2h.strictParse(test_case));
+    }
+    SECTION( "strictParse then simpleParse" ) {
+        REQUIRE_NOTHROW(a2h.strictParse(test_case));
+        REQUIRE_NOTHROW(a2h.simpleParse(test_case));
+    }
 }
