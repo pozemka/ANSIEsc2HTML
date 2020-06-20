@@ -41,7 +41,17 @@ Can only disable SGR parameters in reverse order they where enabled. Terminal em
 This function is suitable for ANSI code generated from markup languages like XML or Markdown.
 
 ### strictParse
-Cans disable SGR parameters in any order. Same as terminal emulators. But it is ~40% slower than simpleParse.
+Cans disable SGR parameters in any order. However it is ~40% slower than simpleParse.
+
+## Compilation:
+This will produce release versions of static and dynamic libraries and test executable:
+
+    mkdir build
+    cd build/
+    cmake -DCMAKE_BUILD_TYPE=Release ..
+      # or for Windows
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release .. 
+    make
 
 ## Performance:
 Tested on:
@@ -55,12 +65,3 @@ Results:
 * `simpleParse` ~ 1082 µs
 * `strictParse` ~ 1400 µs
 
-## Compilation:
-This will produce release versions of static and dynamic libraries and test executable:
-
-    mkdir build
-    cd build/
-    cmake -DCMAKE_BUILD_TYPE=Release ..
-      # or for Windows
-    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release .. 
-    make
