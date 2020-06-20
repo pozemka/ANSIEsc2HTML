@@ -1,0 +1,1095 @@
+[38;5;246m//////////////////[39m
+[38;5;246m// Comparison to C[39m
+[38;5;246m//////////////////[39m
+
+[38;5;246m// C++ is _almost_ a superset of C and shares its basic syntax for[39m
+[38;5;246m// variable declarations, primitive types, and functions.[39m
+
+[38;5;246m// Just like in C, your program's entry point is a function called[39m
+[38;5;246m// main with an integer return type.[39m
+[38;5;246m// This value serves as the program's exit status.[39m
+[38;5;246m// See http://en.wikipedia.org/wiki/Exit_status for more information.[39m
+[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;68mmain[39m[38;5;252m([39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252margc[39m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mchar[39;00m[38;5;252m*[39m[38;5;252m*[39m[38;5;252m [39m[38;5;252margv[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;246m// Command line arguments are passed in by argc and argv in the same way[39m
+[38;5;252m    [39m[38;5;246m// they are in C.[39m
+[38;5;252m    [39m[38;5;246m// argc indicates the number of arguments,[39m
+[38;5;252m    [39m[38;5;246m// and argv is an array of C-style strings (char*)[39m
+[38;5;252m    [39m[38;5;246m// representing the arguments.[39m
+[38;5;252m    [39m[38;5;246m// The first argument is the name by which the program was called.[39m
+[38;5;252m    [39m[38;5;246m// argc and argv can be omitted if you do not care about arguments,[39m
+[38;5;252m    [39m[38;5;246m// giving the function signature of int main()[39m
+
+[38;5;252m    [39m[38;5;246m// An exit status of 0 indicates success.[39m
+[38;5;252m    [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;67m0[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m// However, C++ varies in some of the following ways:[39m
+
+[38;5;246m// In C++, character literals are chars[39m
+[38;5;70;01msizeof[39;00m[38;5;252m([39m[38;5;214m'[39m[38;5;214mc[39m[38;5;214m'[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m=[39m[38;5;252m [39m[38;5;70;01msizeof[39;00m[38;5;252m([39m[38;5;70;01mchar[39;00m[38;5;252m)[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m1[39m
+
+[38;5;246m// In C, character literals are ints[39m
+[38;5;70;01msizeof[39;00m[38;5;252m([39m[38;5;214m'[39m[38;5;214mc[39m[38;5;214m'[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m=[39m[38;5;252m [39m[38;5;70;01msizeof[39;00m[38;5;252m([39m[38;5;70;01mint[39;00m[38;5;252m)[39m
+
+
+[38;5;246m// C++ has strict prototyping[39m
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mfunc[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// function which accepts no arguments[39m
+
+[38;5;246m// In C[39m
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68mfunc[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// function which may accept any number of arguments[39m
+
+[38;5;246m// Use nullptr instead of NULL in C++[39m
+[38;5;70;01mint[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mip[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;70;01mnullptr[39;00m[38;5;252m;[39m
+
+[38;5;246m// C standard headers are available in C++,[39m
+[38;5;246m// but are prefixed with "c" and have no .h suffix.[39m
+[38;5;1;01m#[39;00m[38;5;1;01minclude[39;00m[38;5;252m [39m[38;5;246m<cstdio>[39m
+
+[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;68mmain[39m[38;5;252m([39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mprintf[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214mHello, world![39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;67m0[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m///////////////////////[39m
+[38;5;246m// Function overloading[39m
+[38;5;246m///////////////////////[39m
+
+[38;5;246m// C++ supports function overloading[39m
+[38;5;246m// provided each function takes different parameters.[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68mprint[39m[38;5;252m([39m[38;5;70;01mchar[39;00m[38;5;252m [39m[38;5;70;01mconst[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mmyString[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mprintf[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214mString %s[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m,[39m[38;5;252m [39m[38;5;252mmyString[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68mprint[39m[38;5;252m([39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mmyInt[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mprintf[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214mMy int is %d[39m[38;5;214m"[39m[38;5;252m,[39m[38;5;252m [39m[38;5;252mmyInt[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;68mmain[39m[38;5;252m([39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mprint[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214mHello[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Resolves to void print(const char*)[39m
+[38;5;252m    [39m[38;5;252mprint[39m[38;5;252m([39m[38;5;67m15[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Resolves to void print(int)[39m
+[38;5;252m}[39m
+
+[38;5;246m/////////////////////////////[39m
+[38;5;246m// Default function arguments[39m
+[38;5;246m/////////////////////////////[39m
+
+[38;5;246m// You can provide default arguments for a function[39m
+[38;5;246m// if they are not provided by the caller.[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68mdoSomethingWithInts[39m[38;5;252m([39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252ma[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m1[39m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mb[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m4[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;246m// Do something with the ints here[39m
+[38;5;252m}[39m
+
+[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;68mmain[39m[38;5;252m([39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mdoSomethingWithInts[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m      [39m[38;5;246m// a = 1,  b = 4[39m
+[38;5;252m    [39m[38;5;252mdoSomethingWithInts[39m[38;5;252m([39m[38;5;67m20[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m    [39m[38;5;246m// a = 20, b = 4[39m
+[38;5;252m    [39m[38;5;252mdoSomethingWithInts[39m[38;5;252m([39m[38;5;67m20[39m[38;5;252m,[39m[38;5;252m [39m[38;5;67m5[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// a = 20, b = 5[39m
+[38;5;252m}[39m
+
+[38;5;246m// Default arguments must be at the end of the arguments list.[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68minvalidDeclaration[39m[38;5;252m([39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252ma[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m1[39m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mb[39m[38;5;252m)[39m[38;5;252m [39m[38;5;246m// Error![39m
+[38;5;252m{[39m
+[38;5;252m}[39m
+
+
+[38;5;246m/////////////[39m
+[38;5;246m// Namespaces[39m
+[38;5;246m/////////////[39m
+
+[38;5;246m// Namespaces provide separate scopes for variable, function,[39m
+[38;5;246m// and other declarations.[39m
+[38;5;246m// Namespaces can be nested.[39m
+
+[38;5;70;01mnamespace[39;00m[38;5;252m [39m[38;5;252mFirst[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m    [39m[38;5;70;01mnamespace[39;00m[38;5;252m [39m[38;5;252mNested[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m        [39m[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mfoo[39m[38;5;252m([39m[38;5;252m)[39m
+[38;5;252m        [39m[38;5;252m{[39m
+[38;5;252m            [39m[38;5;252mprintf[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214mThis is First::Nested::foo[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m        [39m[38;5;252m}[39m
+[38;5;252m    [39m[38;5;252m}[39m[38;5;252m [39m[38;5;246m// end namespace Nested[39m
+[38;5;252m}[39m[38;5;252m [39m[38;5;246m// end namespace First[39m
+
+[38;5;70;01mnamespace[39;00m[38;5;252m [39m[38;5;252mSecond[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m    [39m[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mfoo[39m[38;5;252m([39m[38;5;252m)[39m
+[38;5;252m    [39m[38;5;252m{[39m
+[38;5;252m        [39m[38;5;252mprintf[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214mThis is Second::foo[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252m}[39m
+[38;5;252m}[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mfoo[39m[38;5;252m([39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mprintf[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214mThis is global foo[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mmain[39m[38;5;252m([39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;246m// Includes all symbols from namespace Second into the current scope. Note[39m
+[38;5;252m    [39m[38;5;246m// that simply foo() no longer works, since it is now ambiguous whether[39m
+[38;5;252m    [39m[38;5;246m// we're calling the foo in namespace Second or the top level.[39m
+[38;5;252m    [39m[38;5;70;01musing[39;00m[38;5;252m [39m[38;5;70;01mnamespace[39;00m[38;5;252m [39m[38;5;252mSecond[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;252mSecond[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mfoo[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// prints "This is Second::foo"[39m
+[38;5;252m    [39m[38;5;252mFirst[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mNested[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mfoo[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// prints "This is First::Nested::foo"[39m
+[38;5;252m    [39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mfoo[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// prints "This is global foo"[39m
+[38;5;252m}[39m
+
+[38;5;246m///////////////[39m
+[38;5;246m// Input/Output[39m
+[38;5;246m///////////////[39m
+
+[38;5;246m// C++ input and output uses streams[39m
+[38;5;246m// cin, cout, and cerr represent stdin, stdout, and stderr.[39m
+[38;5;246m// << is the insertion operator and >> is the extraction operator.[39m
+
+[38;5;1;01m#[39;00m[38;5;1;01minclude[39;00m[38;5;252m [39m[38;5;246m<iostream> // Include for I/O streams[39m
+
+[38;5;70;01musing[39;00m[38;5;252m [39m[38;5;70;01mnamespace[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Streams are in the std namespace (standard library)[39m
+
+[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;68mmain[39m[38;5;252m([39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m   [39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mmyInt[39m[38;5;252m;[39m
+
+[38;5;252m   [39m[38;5;246m// Prints to stdout (or terminal/screen)[39m
+[38;5;252m   [39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mEnter your favorite number:[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m
+[38;5;252m   [39m[38;5;246m// Takes in input[39m
+[38;5;252m   [39m[38;5;252mcin[39m[38;5;252m [39m[38;5;252m>[39m[38;5;252m>[39m[38;5;252m [39m[38;5;252mmyInt[39m[38;5;252m;[39m
+
+[38;5;252m   [39m[38;5;246m// cout can also be formatted[39m
+[38;5;252m   [39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mYour favorite number is [39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mmyInt[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m
+[38;5;252m   [39m[38;5;246m// prints "Your favorite number is <myInt>"[39m
+
+[38;5;252m    [39m[38;5;252mcerr[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mUsed for error messages[39m[38;5;214m"[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m//////////[39m
+[38;5;246m// Strings[39m
+[38;5;246m//////////[39m
+
+[38;5;246m// Strings in C++ are objects and have many member functions[39m
+[38;5;1;01m#[39;00m[38;5;1;01minclude[39;00m[38;5;252m [39m[38;5;246m<string>[39m
+
+[38;5;70;01musing[39;00m[38;5;252m [39m[38;5;70;01mnamespace[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Strings are also in the namespace std (standard library)[39m
+
+[38;5;252mstring[39m[38;5;252m [39m[38;5;252mmyString[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mHello[39m[38;5;214m"[39m[38;5;252m;[39m
+[38;5;252mstring[39m[38;5;252m [39m[38;5;252mmyOtherString[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m World[39m[38;5;214m"[39m[38;5;252m;[39m
+
+[38;5;246m// + is used for concatenation.[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mmyString[39m[38;5;252m [39m[38;5;252m+[39m[38;5;252m [39m[38;5;252mmyOtherString[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// "Hello World"[39m
+
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mmyString[39m[38;5;252m [39m[38;5;252m+[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m You[39m[38;5;214m"[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// "Hello You"[39m
+
+[38;5;246m// C++ strings are mutable.[39m
+[38;5;252mmyString[39m[38;5;252m.[39m[38;5;252mappend[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214m Dog[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mmyString[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// "Hello Dog"[39m
+
+
+[38;5;246m/////////////[39m
+[38;5;246m// References[39m
+[38;5;246m/////////////[39m
+
+[38;5;246m// In addition to pointers like the ones in C,[39m
+[38;5;246m// C++ has _references_.[39m
+[38;5;246m// These are pointer types that cannot be reassigned once set[39m
+[38;5;246m// and cannot be null.[39m
+[38;5;246m// They also have the same syntax as the variable itself:[39m
+[38;5;246m// No * is needed for dereferencing and[39m
+[38;5;246m// & (address of) is not used for assignment.[39m
+
+[38;5;70;01musing[39;00m[38;5;252m [39m[38;5;70;01mnamespace[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m;[39m
+
+[38;5;252mstring[39m[38;5;252m [39m[38;5;252mfoo[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mI am foo[39m[38;5;214m"[39m[38;5;252m;[39m
+[38;5;252mstring[39m[38;5;252m [39m[38;5;252mbar[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mI am bar[39m[38;5;214m"[39m[38;5;252m;[39m
+
+
+[38;5;252mstring[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mfooRef[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mfoo[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// This creates a reference to foo.[39m
+[38;5;252mfooRef[39m[38;5;252m [39m[38;5;252m+[39m[38;5;252m=[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m. Hi![39m[38;5;214m"[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Modifies foo through the reference[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mfooRef[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Prints "I am foo. Hi!"[39m
+
+[38;5;246m// Doesn't reassign "fooRef". This is the same as "foo = bar", and[39m
+[38;5;246m//   foo == "I am bar"[39m
+[38;5;246m// after this line.[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252m&[39m[38;5;252mfooRef[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mendl[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m//Prints the address of foo[39m
+[38;5;252mfooRef[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mbar[39m[38;5;252m;[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252m&[39m[38;5;252mfooRef[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mendl[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m//Still prints the address of foo[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mfooRef[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Prints "I am bar"[39m
+
+[38;5;246m//The address of fooRef remains the same, i.e. it is still referring to foo.[39m
+
+
+[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mstring[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mbarRef[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mbar[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Create a const reference to bar.[39m
+[38;5;246m// Like C, const values (and pointers and references) cannot be modified.[39m
+[38;5;252mbarRef[39m[38;5;252m [39m[38;5;252m+[39m[38;5;252m=[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m. Hi![39m[38;5;214m"[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Error, const references cannot be modified.[39m
+
+[38;5;246m// Sidetrack: Before we talk more about references, we must introduce a concept[39m
+[38;5;246m// called a temporary object. Suppose we have the following code:[39m
+[38;5;252mstring[39m[38;5;252m [39m[38;5;68mtempObjectFun[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m[38;5;252m [39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m [39m[38;5;252m}[39m
+[38;5;252mstring[39m[38;5;252m [39m[38;5;252mretVal[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mtempObjectFun[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;246m// What happens in the second line is actually:[39m
+[38;5;246m//   - a string object is returned from tempObjectFun[39m
+[38;5;246m//   - a new string is constructed with the returned object as argument to the[39m
+[38;5;246m//     constructor[39m
+[38;5;246m//   - the returned object is destroyed[39m
+[38;5;246m// The returned object is called a temporary object. Temporary objects are[39m
+[38;5;246m// created whenever a function returns an object, and they are destroyed at the[39m
+[38;5;246m// end of the evaluation of the enclosing expression (Well, this is what the[39m
+[38;5;246m// standard says, but compilers are allowed to change this behavior. Look up[39m
+[38;5;246m// "return value optimization" if you're into this kind of details). So in this[39m
+[38;5;246m// code:[39m
+[38;5;252mfoo[39m[38;5;252m([39m[38;5;252mbar[39m[38;5;252m([39m[38;5;252mtempObjectFun[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m)[39m[38;5;252m)[39m
+
+[38;5;246m// assuming foo and bar exist, the object returned from tempObjectFun is[39m
+[38;5;246m// passed to bar, and it is destroyed before foo is called.[39m
+
+[38;5;246m// Now back to references. The exception to the "at the end of the enclosing[39m
+[38;5;246m// expression" rule is if a temporary object is bound to a const reference, in[39m
+[38;5;246m// which case its life gets extended to the current scope:[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mconstReferenceTempObjectFun[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m  [39m[38;5;246m// constRef gets the temporary object, and it is valid until the end of this[39m
+[38;5;252m  [39m[38;5;246m// function.[39m
+[38;5;252m  [39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mstring[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mconstRef[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mtempObjectFun[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m  [39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m.[39m
+[38;5;252m}[39m
+
+[38;5;246m// Another kind of reference introduced in C++11 is specifically for temporary[39m
+[38;5;246m// objects. You cannot have a variable of its type, but it takes precedence in[39m
+[38;5;246m// overload resolution:[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252msomeFun[39m[38;5;252m([39m[38;5;252mstring[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252ms[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m[38;5;252m [39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m [39m[38;5;252m}[39m[38;5;252m  [39m[38;5;246m// Regular reference[39m
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252msomeFun[39m[38;5;252m([39m[38;5;252mstring[39m[38;5;252m&[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252ms[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m[38;5;252m [39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m [39m[38;5;252m}[39m[38;5;252m  [39m[38;5;246m// Reference to temporary object[39m
+
+[38;5;252mstring[39m[38;5;252m [39m[38;5;252mfoo[39m[38;5;252m;[39m
+[38;5;252msomeFun[39m[38;5;252m([39m[38;5;252mfoo[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Calls the version with regular reference[39m
+[38;5;252msomeFun[39m[38;5;252m([39m[38;5;252mtempObjectFun[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Calls the version with temporary reference[39m
+
+[38;5;246m// For example, you will see these two versions of constructors for[39m
+[38;5;246m// std::basic_string:[39m
+[38;5;252mbasic_string[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mbasic_string[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mother[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252mbasic_string[39m[38;5;252m([39m[38;5;252mbasic_string[39m[38;5;252m&[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mother[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;246m// Idea being if we are constructing a new string from a temporary object (which[39m
+[38;5;246m// is going to be destroyed soon anyway), we can have a more efficient[39m
+[38;5;246m// constructor that "salvages" parts of that temporary string. You will see this[39m
+[38;5;246m// concept referred to as "move semantics".[39m
+
+[38;5;246m/////////////////////[39m
+[38;5;246m// Enums[39m
+[38;5;246m/////////////////////[39m
+
+[38;5;246m// Enums are a way to assign a value to a constant most commonly used for[39m
+[38;5;246m// easier visualization and reading of code[39m
+[38;5;70;01menum[39;00m[38;5;252m [39m[38;5;252mECarTypes[39m
+[38;5;252m{[39m
+[38;5;252m  [39m[38;5;252mSedan[39m[38;5;252m,[39m
+[38;5;252m  [39m[38;5;252mHatchback[39m[38;5;252m,[39m
+[38;5;252m  [39m[38;5;252mSUV[39m[38;5;252m,[39m
+[38;5;252m  [39m[38;5;252mWagon[39m
+[38;5;252m}[39m[38;5;252m;[39m
+
+[38;5;252mECarTypes[39m[38;5;252m [39m[38;5;68mGetPreferredCarType[39m[38;5;252m([39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m	[39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;252mECarTypes[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mHatchback[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m// As of C++11 there is an easy way to assign a type to the enum which can be[39m
+[38;5;246m// useful in serialization of data and converting enums back-and-forth between[39m
+[38;5;246m// the desired type and their respective constants[39m
+[38;5;70;01menum[39;00m[38;5;252m [39m[38;5;252mECarTypes[39m[38;5;252m [39m[38;5;252m:[39m[38;5;252m [39m[38;5;70;01muint8_t[39;00m
+[38;5;252m{[39m
+[38;5;252m  [39m[38;5;252mSedan[39m[38;5;252m,[39m[38;5;252m [39m[38;5;246m// 0[39m
+[38;5;252m  [39m[38;5;252mHatchback[39m[38;5;252m,[39m[38;5;252m [39m[38;5;246m// 1[39m
+[38;5;252m  [39m[38;5;252mSUV[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m254[39m[38;5;252m,[39m[38;5;252m [39m[38;5;246m// 254[39m
+[38;5;252m  [39m[38;5;252mHybrid[39m[38;5;252m [39m[38;5;246m// 255[39m
+[38;5;252m}[39m[38;5;252m;[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68mWriteByteToFile[39m[38;5;252m([39m[38;5;70;01muint8_t[39;00m[38;5;252m [39m[38;5;252mInputValue[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m	[39m[38;5;246m// Serialize the InputValue to a file[39m
+[38;5;252m}[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68mWritePreferredCarTypeToFile[39m[38;5;252m([39m[38;5;252mECarTypes[39m[38;5;252m [39m[38;5;252mInputCarType[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m	[39m[38;5;246m// The enum is implicitly converted to a uint8_t due to its declared enum type[39m
+[38;5;252m	[39m[38;5;252mWriteByteToFile[39m[38;5;252m([39m[38;5;252mInputCarType[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m// On the other hand you may not want enums to be accidentally cast to an integer[39m
+[38;5;246m// type or to other enums so it is instead possible to create an enum class which[39m
+[38;5;246m// won't be implicitly converted[39m
+[38;5;70;01menum[39;00m[38;5;252m [39m[38;5;70;01mclass[39;00m[38;5;252m [39m[38;5;68;04mECarTypes[39;00m[38;5;252m [39m[38;5;252m:[39m[38;5;252m [39m[38;5;70;01muint8_t[39;00m
+[38;5;252m{[39m
+[38;5;252m  [39m[38;5;252mSedan[39m[38;5;252m,[39m[38;5;252m [39m[38;5;246m// 0[39m
+[38;5;252m  [39m[38;5;252mHatchback[39m[38;5;252m,[39m[38;5;252m [39m[38;5;246m// 1[39m
+[38;5;252m  [39m[38;5;252mSUV[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m254[39m[38;5;252m,[39m[38;5;252m [39m[38;5;246m// 254[39m
+[38;5;252m  [39m[38;5;252mHybrid[39m[38;5;252m [39m[38;5;246m// 255[39m
+[38;5;252m}[39m[38;5;252m;[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68mWriteByteToFile[39m[38;5;252m([39m[38;5;70;01muint8_t[39;00m[38;5;252m [39m[38;5;252mInputValue[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m	[39m[38;5;246m// Serialize the InputValue to a file[39m
+[38;5;252m}[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68mWritePreferredCarTypeToFile[39m[38;5;252m([39m[38;5;252mECarTypes[39m[38;5;252m [39m[38;5;252mInputCarType[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m	[39m[38;5;246m// Won't compile even though ECarTypes is a uint8_t due to the enum[39m
+[38;5;252m	[39m[38;5;246m// being declared as an "enum class"![39m
+[38;5;252m	[39m[38;5;252mWriteByteToFile[39m[38;5;252m([39m[38;5;252mInputCarType[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m//////////////////////////////////////////[39m
+[38;5;246m// Classes and object-oriented programming[39m
+[38;5;246m//////////////////////////////////////////[39m
+
+[38;5;246m// First example of classes[39m
+[38;5;1;01m#[39;00m[38;5;1;01minclude[39;00m[38;5;252m [39m[38;5;246m<iostream>[39m
+
+[38;5;246m// Declare a class.[39m
+[38;5;246m// Classes are usually declared in header (.h or .hpp) files.[39m
+[38;5;70;01mclass[39;00m[38;5;252m [39m[38;5;68;04mDog[39;00m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m    [39m[38;5;246m// Member variables and functions are private by default.[39m
+[38;5;252m    [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mstring[39m[38;5;252m [39m[38;5;252mname[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mweight[39m[38;5;252m;[39m
+
+[38;5;246m// All members following this are public[39m
+[38;5;246m// until "private:" or "protected:" is found.[39m
+[38;5;70;01mpublic[39;00m[38;5;252m:[39m
+
+[38;5;252m    [39m[38;5;246m// Default constructor[39m
+[38;5;252m    [39m[38;5;252mDog[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;246m// Member function declarations (implementations to follow)[39m
+[38;5;252m    [39m[38;5;246m// Note that we use std::string here instead of placing[39m
+[38;5;252m    [39m[38;5;246m// using namespace std;[39m
+[38;5;252m    [39m[38;5;246m// above.[39m
+[38;5;252m    [39m[38;5;246m// Never put a "using namespace" statement in a header.[39m
+[38;5;252m    [39m[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68msetName[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mstring[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mdogsName[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68msetWeight[39m[38;5;252m([39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mdogsWeight[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;246m// Functions that do not modify the state of the object[39m
+[38;5;252m    [39m[38;5;246m// should be marked as const.[39m
+[38;5;252m    [39m[38;5;246m// This allows you to call them if given a const reference to the object.[39m
+[38;5;252m    [39m[38;5;246m// Also note the functions must be explicitly declared as _virtual_[39m
+[38;5;252m    [39m[38;5;246m// in order to be overridden in derived classes.[39m
+[38;5;252m    [39m[38;5;246m// Functions are not virtual by default for performance reasons.[39m
+[38;5;252m    [39m[38;5;70;01mvirtual[39;00m[38;5;252m [39m[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68mprint[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;70;01mconst[39;00m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;246m// Functions can also be defined inside the class body.[39m
+[38;5;252m    [39m[38;5;246m// Functions defined as such are automatically inlined.[39m
+[38;5;252m    [39m[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68mbark[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252m{[39m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mname[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m barks![39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m[38;5;252m [39m[38;5;252m}[39m
+
+[38;5;252m    [39m[38;5;246m// Along with constructors, C++ provides destructors.[39m
+[38;5;252m    [39m[38;5;246m// These are called when an object is deleted or falls out of scope.[39m
+[38;5;252m    [39m[38;5;246m// This enables powerful paradigms such as RAII[39m
+[38;5;252m    [39m[38;5;246m// (see below)[39m
+[38;5;252m    [39m[38;5;246m// The destructor should be virtual if a class is to be derived from;[39m
+[38;5;252m    [39m[38;5;246m// if it is not virtual, then the derived class' destructor will[39m
+[38;5;252m    [39m[38;5;246m// not be called if the object is destroyed through a base-class reference[39m
+[38;5;252m    [39m[38;5;246m// or pointer.[39m
+[38;5;252m    [39m[38;5;70;01mvirtual[39;00m[38;5;252m [39m[38;5;252m~[39m[38;5;252mDog[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;252m}[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// A semicolon must follow the class definition.[39m
+
+[38;5;246m// Class member functions are usually implemented in .cpp files.[39m
+[38;5;252mDog[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mDog[39m[38;5;252m([39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mA dog has been constructed[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m// Objects (such as strings) should be passed by reference[39m
+[38;5;246m// if you are modifying them or const reference if you are not.[39m
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mDog[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252msetName[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mstring[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mdogsName[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mname[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mdogsName[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mDog[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252msetWeight[39m[38;5;252m([39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mdogsWeight[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mweight[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mdogsWeight[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m// Notice that "virtual" is only needed in the declaration, not the definition.[39m
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mDog[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mprint[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;70;01mconst[39;00m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mDog is [39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mname[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m and weighs [39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mweight[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mkg[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;252mDog[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252m~[39m[38;5;252mDog[39m[38;5;252m([39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mGoodbye [39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mname[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mmain[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mDog[39m[38;5;252m [39m[38;5;252mmyDog[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// prints "A dog has been constructed"[39m
+[38;5;252m    [39m[38;5;252mmyDog[39m[38;5;252m.[39m[38;5;252msetName[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214mBarkley[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252mmyDog[39m[38;5;252m.[39m[38;5;252msetWeight[39m[38;5;252m([39m[38;5;67m10[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252mmyDog[39m[38;5;252m.[39m[38;5;252mprint[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// prints "Dog is Barkley and weighs 10 kg"[39m
+[38;5;252m    [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;67m0[39m[38;5;252m;[39m
+[38;5;252m}[39m[38;5;252m [39m[38;5;246m// prints "Goodbye Barkley"[39m
+
+[38;5;246m// Inheritance:[39m
+
+[38;5;246m// This class inherits everything public and protected from the Dog class[39m
+[38;5;246m// as well as private but may not directly access private members/methods[39m
+[38;5;246m// without a public or protected method for doing so[39m
+[38;5;70;01mclass[39;00m[38;5;252m [39m[38;5;68;04mOwnedDog[39;00m[38;5;252m [39m[38;5;252m:[39m[38;5;252m [39m[38;5;70;01mpublic[39;00m[38;5;252m [39m[38;5;252mDog[39m[38;5;252m [39m[38;5;252m{[39m
+
+[38;5;70;01mpublic[39;00m[38;5;252m:[39m
+[38;5;252m    [39m[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252msetOwner[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mstring[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mdogsOwner[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;246m// Override the behavior of the print function for all OwnedDogs. See[39m
+[38;5;252m    [39m[38;5;246m// http://en.wikipedia.org/wiki/Polymorphism_(computer_science)#Subtyping[39m
+[38;5;252m    [39m[38;5;246m// for a more general introduction if you are unfamiliar with[39m
+[38;5;252m    [39m[38;5;246m// subtype polymorphism.[39m
+[38;5;252m    [39m[38;5;246m// The override keyword is optional but makes sure you are actually[39m
+[38;5;252m    [39m[38;5;246m// overriding the method in a base class.[39m
+[38;5;252m    [39m[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;68mprint[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;70;01moverride[39;00m[38;5;252m;[39m
+
+[38;5;70;01mprivate[39;00m[38;5;252m:[39m
+[38;5;252m    [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mstring[39m[38;5;252m [39m[38;5;252mowner[39m[38;5;252m;[39m
+[38;5;252m}[39m[38;5;252m;[39m
+
+[38;5;246m// Meanwhile, in the corresponding .cpp file:[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mOwnedDog[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252msetOwner[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mstring[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mdogsOwner[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mowner[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mdogsOwner[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mOwnedDog[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mprint[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;70;01mconst[39;00m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mDog[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mprint[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Call the print function in the base Dog class[39m
+[38;5;252m    [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mDog is owned by [39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mowner[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;246m// Prints "Dog is <name> and weights <weight>"[39m
+[38;5;252m    [39m[38;5;246m//        "Dog is owned by <owner>"[39m
+[38;5;252m}[39m
+
+[38;5;246m//////////////////////////////////////////[39m
+[38;5;246m// Initialization and Operator Overloading[39m
+[38;5;246m//////////////////////////////////////////[39m
+
+[38;5;246m// In C++ you can overload the behavior of operators such as +, -, *, /, etc.[39m
+[38;5;246m// This is done by defining a function which is called[39m
+[38;5;246m// whenever the operator is used.[39m
+
+[38;5;1;01m#[39;00m[38;5;1;01minclude[39;00m[38;5;252m [39m[38;5;246m<iostream>[39m
+[38;5;70;01musing[39;00m[38;5;252m [39m[38;5;70;01mnamespace[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m;[39m
+
+[38;5;70;01mclass[39;00m[38;5;252m [39m[38;5;68;04mPoint[39;00m[38;5;252m [39m[38;5;252m{[39m
+[38;5;70;01mpublic[39;00m[38;5;252m:[39m
+[38;5;252m    [39m[38;5;246m// Member variables can be given default values in this manner.[39m
+[38;5;252m    [39m[38;5;70;01mdouble[39;00m[38;5;252m [39m[38;5;252mx[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m0[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;70;01mdouble[39;00m[38;5;252m [39m[38;5;252my[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m0[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;246m// Define a default constructor which does nothing[39m
+[38;5;252m    [39m[38;5;246m// but initialize the Point to the default value (0, 0)[39m
+[38;5;252m    [39m[38;5;252mPoint[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m[38;5;252m [39m[38;5;252m}[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;246m// The following syntax is known as an initialization list[39m
+[38;5;252m    [39m[38;5;246m// and is the proper way to initialize class member values[39m
+[38;5;252m    [39m[38;5;252mPoint[39m[38;5;252m [39m[38;5;252m([39m[38;5;70;01mdouble[39;00m[38;5;252m [39m[38;5;252ma[39m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mdouble[39;00m[38;5;252m [39m[38;5;252mb[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m:[39m
+[38;5;252m        [39m[38;5;252mx[39m[38;5;252m([39m[38;5;252ma[39m[38;5;252m)[39m[38;5;252m,[39m
+[38;5;252m        [39m[38;5;252my[39m[38;5;252m([39m[38;5;252mb[39m[38;5;252m)[39m
+[38;5;252m    [39m[38;5;252m{[39m[38;5;252m [39m[38;5;246m/* Do nothing except initialize the values */[39m[38;5;252m [39m[38;5;252m}[39m
+
+[38;5;252m    [39m[38;5;246m// Overload the + operator.[39m
+[38;5;252m    [39m[38;5;252mPoint[39m[38;5;252m [39m[38;5;70;01moperator[39;00m[38;5;252m+[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mPoint[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mrhs[39m[38;5;252m)[39m[38;5;252m [39m[38;5;70;01mconst[39;00m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;246m// Overload the += operator[39m
+[38;5;252m    [39m[38;5;252mPoint[39m[38;5;252m&[39m[38;5;252m [39m[38;5;70;01moperator[39;00m[38;5;252m+[39m[38;5;252m=[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mPoint[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mrhs[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;246m// It would also make sense to add the - and -= operators,[39m
+[38;5;252m    [39m[38;5;246m// but we will skip those for brevity.[39m
+[38;5;252m}[39m[38;5;252m;[39m
+
+[38;5;252mPoint[39m[38;5;252m [39m[38;5;252mPoint[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;70;01moperator[39;00m[38;5;252m+[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mPoint[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mrhs[39m[38;5;252m)[39m[38;5;252m [39m[38;5;70;01mconst[39;00m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;246m// Create a new point that is the sum of this one and rhs.[39m
+[38;5;252m    [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;252mPoint[39m[38;5;252m([39m[38;5;252mx[39m[38;5;252m [39m[38;5;252m+[39m[38;5;252m [39m[38;5;252mrhs[39m[38;5;252m.[39m[38;5;252mx[39m[38;5;252m,[39m[38;5;252m [39m[38;5;252my[39m[38;5;252m [39m[38;5;252m+[39m[38;5;252m [39m[38;5;252mrhs[39m[38;5;252m.[39m[38;5;252my[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;252mPoint[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mPoint[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;70;01moperator[39;00m[38;5;252m+[39m[38;5;252m=[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mPoint[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mrhs[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mx[39m[38;5;252m [39m[38;5;252m+[39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mrhs[39m[38;5;252m.[39m[38;5;252mx[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252my[39m[38;5;252m [39m[38;5;252m+[39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mrhs[39m[38;5;252m.[39m[38;5;252my[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;252m*[39m[38;5;70;01mthis[39;00m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mmain[39m[38;5;252m [39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mPoint[39m[38;5;252m [39m[38;5;252mup[39m[38;5;252m [39m[38;5;252m([39m[38;5;67m0[39m[38;5;252m,[39m[38;5;67m1[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252mPoint[39m[38;5;252m [39m[38;5;68mright[39m[38;5;252m [39m[38;5;252m([39m[38;5;67m1[39m[38;5;252m,[39m[38;5;67m0[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;246m// This calls the Point + operator[39m
+[38;5;252m    [39m[38;5;246m// Point up calls the + (function) with right as its parameter[39m
+[38;5;252m    [39m[38;5;252mPoint[39m[38;5;252m [39m[38;5;252mresult[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mup[39m[38;5;252m [39m[38;5;252m+[39m[38;5;252m [39m[38;5;252mright[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;246m// Prints "Result is upright (1,1)"[39m
+[38;5;252m    [39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mResult is upright ([39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mresult[39m[38;5;252m.[39m[38;5;252mx[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m'[39m[38;5;214m,[39m[38;5;214m'[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mresult[39m[38;5;252m.[39m[38;5;252my[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m)[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;67m0[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m/////////////////////[39m
+[38;5;246m// Templates[39m
+[38;5;246m/////////////////////[39m
+
+[38;5;246m// Templates in C++ are mostly used for generic programming, though they are[39m
+[38;5;246m// much more powerful than generic constructs in other languages. They also[39m
+[38;5;246m// support explicit and partial specialization and functional-style type[39m
+[38;5;246m// classes; in fact, they are a Turing-complete functional language embedded[39m
+[38;5;246m// in C++![39m
+
+[38;5;246m// We start with the kind of generic programming you might be familiar with. To[39m
+[38;5;246m// define a class or function that takes a type parameter:[39m
+[38;5;70;01mtemplate[39;00m[38;5;252m<[39m[38;5;70;01mclass[39;00m[38;5;252m [39m[38;5;68;04mT[39;00m[38;5;252m>[39m
+[38;5;70;01mclass[39;00m[38;5;252m [39m[38;5;68;04mBox[39;00m[38;5;252m [39m[38;5;252m{[39m
+[38;5;70;01mpublic[39;00m[38;5;252m:[39m
+[38;5;252m    [39m[38;5;246m// In this class, T can be used as any other type.[39m
+[38;5;252m    [39m[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252minsert[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mT[39m[38;5;252m&[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m[38;5;252m [39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m [39m[38;5;252m}[39m
+[38;5;252m}[39m[38;5;252m;[39m
+
+[38;5;246m// During compilation, the compiler actually generates copies of each template[39m
+[38;5;246m// with parameters substituted, so the full definition of the class must be[39m
+[38;5;246m// present at each invocation. This is why you will see template classes defined[39m
+[38;5;246m// entirely in header files.[39m
+
+[38;5;246m// To instantiate a template class on the stack:[39m
+[38;5;252mBox[39m[38;5;252m<[39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m [39m[38;5;252mintBox[39m[38;5;252m;[39m
+
+[38;5;246m// and you can use it as you would expect:[39m
+[38;5;252mintBox[39m[38;5;252m.[39m[38;5;252minsert[39m[38;5;252m([39m[38;5;67m123[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;246m// You can, of course, nest templates:[39m
+[38;5;252mBox[39m[38;5;252m<[39m[38;5;252mBox[39m[38;5;252m<[39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m [39m[38;5;252m>[39m[38;5;252m [39m[38;5;252mboxOfBox[39m[38;5;252m;[39m
+[38;5;252mboxOfBox[39m[38;5;252m.[39m[38;5;252minsert[39m[38;5;252m([39m[38;5;252mintBox[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;246m// Until C++11, you had to place a space between the two '>'s, otherwise '>>'[39m
+[38;5;246m// would be parsed as the right shift operator.[39m
+
+[38;5;246m// You will sometimes see[39m
+[38;5;246m//   template<typename T>[39m
+[38;5;246m// instead. The 'class' keyword and 'typename' keywords are _mostly_[39m
+[38;5;246m// interchangeable in this case. For the full explanation, see[39m
+[38;5;246m//   http://en.wikipedia.org/wiki/Typename[39m
+[38;5;246m// (yes, that keyword has its own Wikipedia page).[39m
+
+[38;5;246m// Similarly, a template function:[39m
+[38;5;70;01mtemplate[39;00m[38;5;252m<[39m[38;5;70;01mclass[39;00m[38;5;252m [39m[38;5;68;04mT[39;00m[38;5;252m>[39m
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mbarkThreeTimes[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mT[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252minput[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252minput[39m[38;5;252m.[39m[38;5;252mbark[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252minput[39m[38;5;252m.[39m[38;5;252mbark[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252minput[39m[38;5;252m.[39m[38;5;252mbark[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m// Notice that nothing is specified about the type parameters here. The compiler[39m
+[38;5;246m// will generate and then type-check every invocation of the template, so the[39m
+[38;5;246m// above function works with any type 'T' that has a const 'bark' method![39m
+
+[38;5;252mDog[39m[38;5;252m [39m[38;5;252mfluffy[39m[38;5;252m;[39m
+[38;5;252mfluffy[39m[38;5;252m.[39m[38;5;252msetName[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214mFluffy[39m[38;5;214m"[39m[38;5;252m)[39m
+[38;5;252mbarkThreeTimes[39m[38;5;252m([39m[38;5;252mfluffy[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Prints "Fluffy barks" three times.[39m
+
+[38;5;246m// Template parameters don't have to be classes:[39m
+[38;5;70;01mtemplate[39;00m[38;5;252m<[39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mY[39m[38;5;252m>[39m
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mprintMessage[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m  [39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mLearn C++ in [39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mY[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m minutes![39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mendl[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m// And you can explicitly specialize templates for more efficient code. Of[39m
+[38;5;246m// course, most real-world uses of specialization are not as trivial as this.[39m
+[38;5;246m// Note that you still need to declare the function (or class) as a template[39m
+[38;5;246m// even if you explicitly specified all parameters.[39m
+[38;5;70;01mtemplate[39;00m[38;5;252m<[39m[38;5;252m>[39m
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mprintMessage[39m[38;5;252m<[39m[38;5;67m10[39m[38;5;252m>[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m  [39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mLearn C++ faster in only 10 minutes![39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mendl[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;252mprintMessage[39m[38;5;252m<[39m[38;5;67m20[39m[38;5;252m>[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Prints "Learn C++ in 20 minutes!"[39m
+[38;5;252mprintMessage[39m[38;5;252m<[39m[38;5;67m10[39m[38;5;252m>[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Prints "Learn C++ faster in only 10 minutes!"[39m
+
+
+[38;5;246m/////////////////////[39m
+[38;5;246m// Exception Handling[39m
+[38;5;246m/////////////////////[39m
+
+[38;5;246m// The standard library provides a few exception types[39m
+[38;5;246m// (see http://en.cppreference.com/w/cpp/error/exception)[39m
+[38;5;246m// but any type can be thrown an as exception[39m
+[38;5;1;01m#[39;00m[38;5;1;01minclude[39;00m[38;5;252m [39m[38;5;246m<exception>[39m
+[38;5;1;01m#[39;00m[38;5;1;01minclude[39;00m[38;5;252m [39m[38;5;246m<stdexcept>[39m
+
+[38;5;246m// All exceptions thrown inside the _try_ block can be caught by subsequent[39m
+[38;5;246m// _catch_ handlers.[39m
+[38;5;70;01mtry[39;00m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m    [39m[38;5;246m// Do not allocate exceptions on the heap using _new_.[39m
+[38;5;252m    [39m[38;5;70;01mthrow[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mruntime_error[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214mA problem occurred[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m// Catch exceptions by const reference if they are objects[39m
+[38;5;70;01mcatch[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mexception[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mex[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mex[39m[38;5;252m.[39m[38;5;252mwhat[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m// Catches any exception not caught by previous _catch_ blocks[39m
+[38;5;70;01mcatch[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mUnknown exception caught[39m[38;5;214m"[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;70;01mthrow[39;00m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Re-throws the exception[39m
+[38;5;252m}[39m
+
+[38;5;246m///////[39m
+[38;5;246m// RAII[39m
+[38;5;246m///////[39m
+
+[38;5;246m// RAII stands for "Resource Acquisition Is Initialization".[39m
+[38;5;246m// It is often considered the most powerful paradigm in C++[39m
+[38;5;246m// and is the simple concept that a constructor for an object[39m
+[38;5;246m// acquires that object's resources and the destructor releases them.[39m
+
+[38;5;246m// To understand how this is useful,[39m
+[38;5;246m// consider a function that uses a C file handle:[39m
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mdoSomethingWithAFile[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;70;01mchar[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mfilename[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;246m// To begin with, assume nothing can fail.[39m
+
+[38;5;252m    [39m[38;5;70;01mFILE[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mfh[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mfopen[39m[38;5;252m([39m[38;5;252mfilename[39m[38;5;252m,[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mr[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Open the file in read mode.[39m
+
+[38;5;252m    [39m[38;5;252mdoSomethingWithTheFile[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252mdoSomethingElseWithIt[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;252mfclose[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Close the file handle.[39m
+[38;5;252m}[39m
+
+[38;5;246m// Unfortunately, things are quickly complicated by error handling.[39m
+[38;5;246m// Suppose fopen can fail, and that doSomethingWithTheFile and[39m
+[38;5;246m// doSomethingElseWithIt return error codes if they fail.[39m
+[38;5;246m//  (Exceptions are the preferred way of handling failure,[39m
+[38;5;246m//   but some programmers, especially those with a C background,[39m
+[38;5;246m//   disagree on the utility of exceptions).[39m
+[38;5;246m// We now have to check each call for failure and close the file handle[39m
+[38;5;246m// if a problem occurred.[39m
+[38;5;70;01mbool[39;00m[38;5;252m [39m[38;5;252mdoSomethingWithAFile[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;70;01mchar[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mfilename[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;70;01mFILE[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mfh[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mfopen[39m[38;5;252m([39m[38;5;252mfilename[39m[38;5;252m,[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mr[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Open the file in read mode[39m
+[38;5;252m    [39m[38;5;70;01mif[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m=[39m[38;5;252m [39m[38;5;70;01mnullptr[39;00m[38;5;252m)[39m[38;5;252m [39m[38;5;246m// The returned pointer is null on failure.[39m
+[38;5;252m        [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;31mfalse[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Report that failure to the caller.[39m
+
+[38;5;252m    [39m[38;5;246m// Assume each function returns false if it failed[39m
+[38;5;252m    [39m[38;5;70;01mif[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;252m![39m[38;5;252mdoSomethingWithTheFile[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m        [39m[38;5;252mfclose[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Close the file handle so it doesn't leak.[39m
+[38;5;252m        [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;31mfalse[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Propagate the error.[39m
+[38;5;252m    [39m[38;5;252m}[39m
+[38;5;252m    [39m[38;5;70;01mif[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;252m![39m[38;5;252mdoSomethingElseWithIt[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m        [39m[38;5;252mfclose[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Close the file handle so it doesn't leak.[39m
+[38;5;252m        [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;31mfalse[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Propagate the error.[39m
+[38;5;252m    [39m[38;5;252m}[39m
+
+[38;5;252m    [39m[38;5;252mfclose[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Close the file handle so it doesn't leak.[39m
+[38;5;252m    [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;31mtrue[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Indicate success[39m
+[38;5;252m}[39m
+
+[38;5;246m// C programmers often clean this up a little bit using goto:[39m
+[38;5;70;01mbool[39;00m[38;5;252m [39m[38;5;252mdoSomethingWithAFile[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;70;01mchar[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mfilename[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;70;01mFILE[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mfh[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mfopen[39m[38;5;252m([39m[38;5;252mfilename[39m[38;5;252m,[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mr[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;70;01mif[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m=[39m[38;5;252m [39m[38;5;70;01mnullptr[39;00m[38;5;252m)[39m
+[38;5;252m        [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;31mfalse[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;70;01mif[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;252m![39m[38;5;252mdoSomethingWithTheFile[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m)[39m
+[38;5;252m        [39m[38;5;70;01mgoto[39;00m[38;5;252m [39m[38;5;252mfailure[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;70;01mif[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;252m![39m[38;5;252mdoSomethingElseWithIt[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m)[39m
+[38;5;252m        [39m[38;5;70;01mgoto[39;00m[38;5;252m [39m[38;5;252mfailure[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;252mfclose[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Close the file[39m
+[38;5;252m    [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;31mtrue[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Indicate success[39m
+
+[38;5;252mfailure[39m[38;5;252m:[39m
+[38;5;252m    [39m[38;5;252mfclose[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;31mfalse[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Propagate the error[39m
+[38;5;252m}[39m
+
+[38;5;246m// If the functions indicate errors using exceptions,[39m
+[38;5;246m// things are a little cleaner, but still sub-optimal.[39m
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mdoSomethingWithAFile[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;70;01mchar[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mfilename[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;70;01mFILE[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mfh[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mfopen[39m[38;5;252m([39m[38;5;252mfilename[39m[38;5;252m,[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214mr[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Open the file in read mode[39m
+[38;5;252m    [39m[38;5;70;01mif[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m=[39m[38;5;252m [39m[38;5;70;01mnullptr[39;00m[38;5;252m)[39m
+[38;5;252m        [39m[38;5;70;01mthrow[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mruntime_error[39m[38;5;252m([39m[38;5;214m"[39m[38;5;214mCould not open the file.[39m[38;5;214m"[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;252m    [39m[38;5;70;01mtry[39;00m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m        [39m[38;5;252mdoSomethingWithTheFile[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m        [39m[38;5;252mdoSomethingElseWithIt[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252m}[39m
+[38;5;252m    [39m[38;5;70;01mcatch[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m.[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m        [39m[38;5;252mfclose[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Be sure to close the file if an error occurs.[39m
+[38;5;252m        [39m[38;5;70;01mthrow[39;00m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Then re-throw the exception.[39m
+[38;5;252m    [39m[38;5;252m}[39m
+
+[38;5;252m    [39m[38;5;252mfclose[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Close the file[39m
+[38;5;252m    [39m[38;5;246m// Everything succeeded[39m
+[38;5;252m}[39m
+
+[38;5;246m// Compare this to the use of C++'s file stream class (fstream)[39m
+[38;5;246m// fstream uses its destructor to close the file.[39m
+[38;5;246m// Recall from above that destructors are automatically called[39m
+[38;5;246m// whenever an object falls out of scope.[39m
+[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mdoSomethingWithAFile[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mstring[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mfilename[39m[38;5;252m)[39m
+[38;5;252m{[39m
+[38;5;252m    [39m[38;5;246m// ifstream is short for input file stream[39m
+[38;5;252m    [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mifstream[39m[38;5;252m [39m[38;5;252mfh[39m[38;5;252m([39m[38;5;252mfilename[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Open the file[39m
+
+[38;5;252m    [39m[38;5;246m// Do things with the file[39m
+[38;5;252m    [39m[38;5;252mdoSomethingWithTheFile[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252mdoSomethingElseWithIt[39m[38;5;252m([39m[38;5;252mfh[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;252m}[39m[38;5;252m [39m[38;5;246m// The file is automatically closed here by the destructor[39m
+
+[38;5;246m// This has _massive_ advantages:[39m
+[38;5;246m// 1. No matter what happens,[39m
+[38;5;246m//    the resource (in this case the file handle) will be cleaned up.[39m
+[38;5;246m//    Once you write the destructor correctly,[39m
+[38;5;246m//    It is _impossible_ to forget to close the handle and leak the resource.[39m
+[38;5;246m// 2. Note that the code is much cleaner.[39m
+[38;5;246m//    The destructor handles closing the file behind the scenes[39m
+[38;5;246m//    without you having to worry about it.[39m
+[38;5;246m// 3. The code is exception safe.[39m
+[38;5;246m//    An exception can be thrown anywhere in the function and cleanup[39m
+[38;5;246m//    will still occur.[39m
+
+[38;5;246m// All idiomatic C++ code uses RAII extensively for all resources.[39m
+[38;5;246m// Additional examples include[39m
+[38;5;246m// - Memory using unique_ptr and shared_ptr[39m
+[38;5;246m// - Containers - the standard library linked list,[39m
+[38;5;246m//   vector (i.e. self-resizing array), hash maps, and so on[39m
+[38;5;246m//   all automatically destroy their contents when they fall out of scope.[39m
+[38;5;246m// - Mutexes using lock_guard and unique_lock[39m
+
+[38;5;246m// containers with object keys of non-primitive values (custom classes) require[39m
+[38;5;246m// compare function in the object itself or as a function pointer. Primitives[39m
+[38;5;246m// have default comparators, but you can override it.[39m
+[38;5;70;01mclass[39;00m[38;5;252m [39m[38;5;68;04mFoo[39;00m[38;5;252m [39m[38;5;252m{[39m
+[38;5;70;01mpublic[39;00m[38;5;252m:[39m
+[38;5;252m    [39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mj[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252mFoo[39m[38;5;252m([39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252ma[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m:[39m[38;5;252m [39m[38;5;252mj[39m[38;5;252m([39m[38;5;252ma[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m[38;5;252m}[39m
+[38;5;252m}[39m[38;5;252m;[39m
+[38;5;70;01mstruct[39;00m[38;5;252m [39m[38;5;252mcompareFunction[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m    [39m[38;5;70;01mbool[39;00m[38;5;252m [39m[38;5;70;01moperator[39;00m[38;5;252m([39m[38;5;252m)[39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mFoo[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252ma[39m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mFoo[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mb[39m[38;5;252m)[39m[38;5;252m [39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m        [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;252ma[39m[38;5;252m.[39m[38;5;252mj[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mb[39m[38;5;252m.[39m[38;5;252mj[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252m}[39m
+[38;5;252m}[39m[38;5;252m;[39m
+[38;5;246m//this isn't allowed (although it can vary depending on compiler)[39m
+[38;5;246m//std::map<Foo, int> fooMap;[39m
+[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mmap[39m[38;5;252m<[39m[38;5;252mFoo[39m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m,[39m[38;5;252m [39m[38;5;252mcompareFunction[39m[38;5;252m>[39m[38;5;252m [39m[38;5;252mfooMap[39m[38;5;252m;[39m
+[38;5;252mfooMap[39m[38;5;252m[[39m[38;5;252mFoo[39m[38;5;252m([39m[38;5;67m1[39m[38;5;252m)[39m[38;5;252m][39m[38;5;252m  [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m1[39m[38;5;252m;[39m
+[38;5;252mfooMap[39m[38;5;252m.[39m[38;5;252mfind[39m[38;5;252m([39m[38;5;252mFoo[39m[38;5;252m([39m[38;5;67m1[39m[38;5;252m)[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m//true[39m
+
+[38;5;246m///////////////////////////////////////[39m
+[38;5;246m// Lambda Expressions (C++11 and above)[39m
+[38;5;246m///////////////////////////////////////[39m
+
+[38;5;246m// lambdas are a convenient way of defining an anonymous function[39m
+[38;5;246m// object right at the location where it is invoked or passed as[39m
+[38;5;246m// an argument to a function.[39m
+
+[38;5;246m// For example, consider sorting a vector of pairs using the second[39m
+[38;5;246m// value of the pair[39m
+
+[38;5;252mvector[39m[38;5;252m<[39m[38;5;252mpair[39m[38;5;252m<[39m[38;5;70;01mint[39;00m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m [39m[38;5;252m>[39m[38;5;252m [39m[38;5;252mtester[39m[38;5;252m;[39m
+[38;5;252mtester[39m[38;5;252m.[39m[38;5;252mpush_back[39m[38;5;252m([39m[38;5;252mmake_pair[39m[38;5;252m([39m[38;5;67m3[39m[38;5;252m,[39m[38;5;252m [39m[38;5;67m6[39m[38;5;252m)[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252mtester[39m[38;5;252m.[39m[38;5;252mpush_back[39m[38;5;252m([39m[38;5;252mmake_pair[39m[38;5;252m([39m[38;5;67m1[39m[38;5;252m,[39m[38;5;252m [39m[38;5;67m9[39m[38;5;252m)[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252mtester[39m[38;5;252m.[39m[38;5;252mpush_back[39m[38;5;252m([39m[38;5;252mmake_pair[39m[38;5;252m([39m[38;5;67m5[39m[38;5;252m,[39m[38;5;252m [39m[38;5;67m0[39m[38;5;252m)[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;246m// Pass a lambda expression as third argument to the sort function[39m
+[38;5;246m// sort is from the <algorithm> header[39m
+
+[38;5;252msort[39m[38;5;252m([39m[38;5;252mtester[39m[38;5;252m.[39m[38;5;252mbegin[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m,[39m[38;5;252m [39m[38;5;252mtester[39m[38;5;252m.[39m[38;5;252mend[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m,[39m[38;5;252m [39m[38;5;252m[[39m[38;5;252m][39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mpair[39m[38;5;252m<[39m[38;5;70;01mint[39;00m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mlhs[39m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;252mpair[39m[38;5;252m<[39m[38;5;70;01mint[39;00m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m&[39m[38;5;252m [39m[38;5;252mrhs[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m        [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;252mlhs[39m[38;5;252m.[39m[38;5;252msecond[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mrhs[39m[38;5;252m.[39m[38;5;252msecond[39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252m}[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;246m// Notice the syntax of the lambda expression,[39m
+[38;5;246m// [] in the lambda is used to "capture" variables[39m
+[38;5;246m// The "Capture List" defines what from the outside of the lambda should be available inside the function body and how.[39m
+[38;5;246m// It can be either:[39m
+[38;5;246m//     1. a value : [x][39m
+[38;5;246m//     2. a reference : [&x][39m
+[38;5;246m//     3. any variable currently in scope by reference [&][39m
+[38;5;246m//     4. same as 3, but by value [=][39m
+[38;5;246m// Example:[39m
+
+[38;5;252mvector[39m[38;5;252m<[39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m [39m[38;5;252mdog_ids[39m[38;5;252m;[39m
+[38;5;246m// number_of_dogs = 3;[39m
+[38;5;70;01mfor[39;00m[38;5;252m([39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mi[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m0[39m[38;5;252m;[39m[38;5;252m [39m[38;5;252mi[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m [39m[38;5;67m3[39m[38;5;252m;[39m[38;5;252m [39m[38;5;252mi[39m[38;5;252m+[39m[38;5;252m+[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m	[39m[38;5;252mdog_ids[39m[38;5;252m.[39m[38;5;252mpush_back[39m[38;5;252m([39m[38;5;252mi[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mweight[39m[38;5;252m[[39m[38;5;67m3[39m[38;5;252m][39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252m{[39m[38;5;67m30[39m[38;5;252m,[39m[38;5;252m [39m[38;5;67m50[39m[38;5;252m,[39m[38;5;252m [39m[38;5;67m10[39m[38;5;252m}[39m[38;5;252m;[39m
+
+[38;5;246m// Say you want to sort dog_ids according to the dogs' weights[39m
+[38;5;246m// So dog_ids should in the end become: [2, 0, 1][39m
+
+[38;5;246m// Here's where lambda expressions come in handy[39m
+
+[38;5;252msort[39m[38;5;252m([39m[38;5;252mdog_ids[39m[38;5;252m.[39m[38;5;252mbegin[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m,[39m[38;5;252m [39m[38;5;252mdog_ids[39m[38;5;252m.[39m[38;5;252mend[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m,[39m[38;5;252m [39m[38;5;252m[[39m[38;5;252m&[39m[38;5;252mweight[39m[38;5;252m][39m[38;5;252m([39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252m&[39m[38;5;252mlhs[39m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252m&[39m[38;5;252mrhs[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m        [39m[38;5;70;01mreturn[39;00m[38;5;252m [39m[38;5;252mweight[39m[38;5;252m[[39m[38;5;252mlhs[39m[38;5;252m][39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mweight[39m[38;5;252m[[39m[38;5;252mrhs[39m[38;5;252m][39m[38;5;252m;[39m
+[38;5;252m    [39m[38;5;252m}[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;246m// Note we captured "weight" by reference in the above example.[39m
+[38;5;246m// More on Lambdas in C++ : http://stackoverflow.com/questions/7627098/what-is-a-lambda-expression-in-c11[39m
+
+[38;5;246m///////////////////////////////[39m
+[38;5;246m// Range For (C++11 and above)[39m
+[38;5;246m///////////////////////////////[39m
+
+[38;5;246m// You can use a range for loop to iterate over a container[39m
+[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252marr[39m[38;5;252m[[39m[38;5;252m][39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252m{[39m[38;5;67m1[39m[38;5;252m,[39m[38;5;252m [39m[38;5;67m10[39m[38;5;252m,[39m[38;5;252m [39m[38;5;67m3[39m[38;5;252m}[39m[38;5;252m;[39m
+
+[38;5;70;01mfor[39;00m[38;5;252m([39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252melem[39m[38;5;252m:[39m[38;5;252m [39m[38;5;252marr[39m[38;5;252m)[39m[38;5;252m{[39m
+[38;5;252m	[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252melem[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mendl[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m// You can use "auto" and not worry about the type of the elements of the container[39m
+[38;5;246m// For example:[39m
+
+[38;5;70;01mfor[39;00m[38;5;252m([39m[38;5;70;01mauto[39;00m[38;5;252m [39m[38;5;252melem[39m[38;5;252m:[39m[38;5;252m [39m[38;5;252marr[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m	[39m[38;5;246m// Do something with each element of arr[39m
+[38;5;252m}[39m
+
+[38;5;246m/////////////////////[39m
+[38;5;246m// Fun stuff[39m
+[38;5;246m/////////////////////[39m
+
+[38;5;246m// Aspects of C++ that may be surprising to newcomers (and even some veterans).[39m
+[38;5;246m// This section is, unfortunately, wildly incomplete; C++ is one of the easiest[39m
+[38;5;246m// languages with which to shoot yourself in the foot.[39m
+
+[38;5;246m// You can override private methods![39m
+[38;5;70;01mclass[39;00m[38;5;252m [39m[38;5;68;04mFoo[39;00m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m  [39m[38;5;70;01mvirtual[39;00m[38;5;252m [39m[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mbar[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252m}[39m[38;5;252m;[39m
+[38;5;70;01mclass[39;00m[38;5;252m [39m[38;5;68;04mFooSub[39;00m[38;5;252m [39m[38;5;252m:[39m[38;5;252m [39m[38;5;70;01mpublic[39;00m[38;5;252m [39m[38;5;252mFoo[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m  [39m[38;5;70;01mvirtual[39;00m[38;5;252m [39m[38;5;70;01mvoid[39;00m[38;5;252m [39m[38;5;252mbar[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Overrides Foo::bar![39m
+[38;5;252m}[39m[38;5;252m;[39m
+
+
+[38;5;246m// 0 == false == NULL (most of the time)![39m
+[38;5;70;01mbool[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mpt[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;70;01mnew[39;00m[38;5;252m [39m[38;5;70;01mbool[39;00m[38;5;252m;[39m
+[38;5;252m*[39m[38;5;252mpt[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m0[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Sets the value points by 'pt' to false.[39m
+[38;5;252mpt[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m0[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Sets 'pt' to the null pointer. Both lines compile without warnings.[39m
+
+[38;5;246m// nullptr is supposed to fix some of that issue:[39m
+[38;5;70;01mint[39;00m[38;5;252m*[39m[38;5;252m [39m[38;5;252mpt2[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;70;01mnew[39;00m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m;[39m
+[38;5;252m*[39m[38;5;252mpt2[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;70;01mnullptr[39;00m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// Doesn't compile[39m
+[38;5;252mpt2[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;70;01mnullptr[39;00m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Sets pt2 to null.[39m
+
+[38;5;246m// There is an exception made for bools.[39m
+[38;5;246m// This is to allow you to test for null pointers with if(!ptr),[39m
+[38;5;246m// but as a consequence you can assign nullptr to a bool directly![39m
+[38;5;252m*[39m[38;5;252mpt[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;70;01mnullptr[39;00m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// This still compiles, even though '*pt' is a bool![39m
+
+
+[38;5;246m// '=' != '=' != '='![39m
+[38;5;246m// Calls Foo::Foo(const Foo&) or some variant (see move semantics) copy[39m
+[38;5;246m// constructor.[39m
+[38;5;252mFoo[39m[38;5;252m [39m[38;5;252mf2[39m[38;5;252m;[39m
+[38;5;252mFoo[39m[38;5;252m [39m[38;5;252mf1[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mf2[39m[38;5;252m;[39m
+
+[38;5;246m// Calls Foo::Foo(const Foo&) or variant, but only copies the 'Foo' part of[39m
+[38;5;246m// 'fooSub'. Any extra members of 'fooSub' are discarded. This sometimes[39m
+[38;5;246m// horrifying behavior is called "object slicing."[39m
+[38;5;252mFooSub[39m[38;5;252m [39m[38;5;252mfooSub[39m[38;5;252m;[39m
+[38;5;252mFoo[39m[38;5;252m [39m[38;5;252mf1[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mfooSub[39m[38;5;252m;[39m
+
+[38;5;246m// Calls Foo::operator=(Foo&) or variant.[39m
+[38;5;252mFoo[39m[38;5;252m [39m[38;5;252mf1[39m[38;5;252m;[39m
+[38;5;252mf1[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mf2[39m[38;5;252m;[39m
+
+
+[38;5;246m///////////////////////////////////////[39m
+[38;5;246m// Tuples (C++11 and above)[39m
+[38;5;246m///////////////////////////////////////[39m
+
+[38;5;1;01m#[39;00m[38;5;1;01minclude[39;00m[38;5;246m<tuple>[39m
+
+[38;5;246m// Conceptually, Tuples are similar to  old data structures (C-like structs) but instead of having named data members,[39m
+[38;5;246m// its elements are accessed by their order in the tuple.[39m
+
+[38;5;246m// We start with constructing a tuple.[39m
+[38;5;246m// Packing values into tuple[39m
+[38;5;70;01mauto[39;00m[38;5;252m [39m[38;5;252mfirst[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mmake_tuple[39m[38;5;252m([39m[38;5;67m10[39m[38;5;252m,[39m[38;5;252m [39m[38;5;214m'[39m[38;5;214mA[39m[38;5;214m'[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mmaxN[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m1e9[39m[38;5;252m;[39m
+[38;5;70;01mconst[39;00m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mmaxL[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m15[39m[38;5;252m;[39m
+[38;5;70;01mauto[39;00m[38;5;252m [39m[38;5;252msecond[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mmake_tuple[39m[38;5;252m([39m[38;5;252mmaxN[39m[38;5;252m,[39m[38;5;252m [39m[38;5;252mmaxL[39m[38;5;252m)[39m[38;5;252m;[39m
+
+[38;5;246m// Printing elements of 'first' tuple[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mget[39m[38;5;252m<[39m[38;5;67m0[39m[38;5;252m>[39m[38;5;252m([39m[38;5;252mfirst[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m [39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mget[39m[38;5;252m<[39m[38;5;67m1[39m[38;5;252m>[39m[38;5;252m([39m[38;5;252mfirst[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m//prints : 10 A[39m
+
+[38;5;246m// Printing elements of 'second' tuple[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mget[39m[38;5;252m<[39m[38;5;67m0[39m[38;5;252m>[39m[38;5;252m([39m[38;5;252msecond[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m [39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mget[39m[38;5;252m<[39m[38;5;67m1[39m[38;5;252m>[39m[38;5;252m([39m[38;5;252msecond[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// prints: 1000000000 15[39m
+
+[38;5;246m// Unpacking tuple into variables[39m
+
+[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mfirst_int[39m[38;5;252m;[39m
+[38;5;70;01mchar[39;00m[38;5;252m [39m[38;5;252mfirst_char[39m[38;5;252m;[39m
+[38;5;252mtie[39m[38;5;252m([39m[38;5;252mfirst_int[39m[38;5;252m,[39m[38;5;252m [39m[38;5;252mfirst_char[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mfirst[39m[38;5;252m;[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mfirst_int[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m [39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mfirst_char[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// prints : 10 A[39m
+
+[38;5;246m// We can also create tuple like this.[39m
+
+[38;5;252mtuple[39m[38;5;252m<[39m[38;5;70;01mint[39;00m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mchar[39;00m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mdouble[39;00m[38;5;252m>[39m[38;5;252m [39m[38;5;252mthird[39m[38;5;252m([39m[38;5;67m11[39m[38;5;252m,[39m[38;5;252m [39m[38;5;214m'[39m[38;5;214mA[39m[38;5;214m'[39m[38;5;252m,[39m[38;5;252m [39m[38;5;67m3.14141[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;246m// tuple_size returns number of elements in a tuple (as a constexpr)[39m
+
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mtuple_size[39m[38;5;252m<[39m[38;5;70;01mdecltype[39;00m[38;5;252m([39m[38;5;252mthird[39m[38;5;252m)[39m[38;5;252m>[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mvalue[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// prints: 3[39m
+
+[38;5;246m// tuple_cat concatenates the elements of all the tuples in the same order.[39m
+
+[38;5;70;01mauto[39;00m[38;5;252m [39m[38;5;252mconcatenated_tuple[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mtuple_cat[39m[38;5;252m([39m[38;5;252mfirst[39m[38;5;252m,[39m[38;5;252m [39m[38;5;252msecond[39m[38;5;252m,[39m[38;5;252m [39m[38;5;252mthird[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;246m// concatenated_tuple becomes = (10, 'A', 1e9, 15, 11, 'A', 3.14141)[39m
+
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mget[39m[38;5;252m<[39m[38;5;67m0[39m[38;5;252m>[39m[38;5;252m([39m[38;5;252mconcatenated_tuple[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// prints: 10[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mget[39m[38;5;252m<[39m[38;5;67m3[39m[38;5;252m>[39m[38;5;252m([39m[38;5;252mconcatenated_tuple[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// prints: 15[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mget[39m[38;5;252m<[39m[38;5;67m5[39m[38;5;252m>[39m[38;5;252m([39m[38;5;252mconcatenated_tuple[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m\n[39m[38;5;214m"[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// prints: 'A'[39m
+
+
+[38;5;246m/////////////////////[39m
+[38;5;246m// Containers[39m
+[38;5;246m/////////////////////[39m
+
+[38;5;246m// Containers or the Standard Template Library are some predefined templates.[39m
+[38;5;246m// They manage the storage space for its elements and provide[39m
+[38;5;246m// member functions to access and manipulate them.[39m
+
+[38;5;246m// Few containers are as follows:[39m
+
+[38;5;246m// Vector (Dynamic array)[39m
+[38;5;246m// Allow us to Define the Array or list of objects at run time[39m
+[38;5;1;01m#[39;00m[38;5;1;01minclude[39;00m[38;5;252m [39m[38;5;246m<vector>[39m
+[38;5;252mstring[39m[38;5;252m [39m[38;5;252mval[39m[38;5;252m;[39m
+[38;5;252mvector[39m[38;5;252m<[39m[38;5;252mstring[39m[38;5;252m>[39m[38;5;252m [39m[38;5;252mmy_vector[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// initialize the vector[39m
+[38;5;252mcin[39m[38;5;252m [39m[38;5;252m>[39m[38;5;252m>[39m[38;5;252m [39m[38;5;252mval[39m[38;5;252m;[39m
+[38;5;252mmy_vector[39m[38;5;252m.[39m[38;5;252mpush_back[39m[38;5;252m([39m[38;5;252mval[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// will push the value of 'val' into vector ("array") my_vector[39m
+[38;5;252mmy_vector[39m[38;5;252m.[39m[38;5;252mpush_back[39m[38;5;252m([39m[38;5;252mval[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// will push the value into the vector again (now having two elements)[39m
+
+[38;5;246m// To iterate through a vector we have 2 choices:[39m
+[38;5;246m// Either classic looping (iterating through the vector from index 0 to its last index):[39m
+[38;5;70;01mfor[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;70;01mint[39;00m[38;5;252m [39m[38;5;252mi[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;67m0[39m[38;5;252m;[39m[38;5;252m [39m[38;5;252mi[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mmy_vector[39m[38;5;252m.[39m[38;5;252msize[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;252mi[39m[38;5;252m+[39m[38;5;252m+[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m	[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mmy_vector[39m[38;5;252m[[39m[38;5;252mi[39m[38;5;252m][39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mendl[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// for accessing a vector's element we can use the operator [][39m
+[38;5;252m}[39m
+
+[38;5;246m// or using an iterator:[39m
+[38;5;252mvector[39m[38;5;252m<[39m[38;5;252mstring[39m[38;5;252m>[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252miterator[39m[38;5;252m [39m[38;5;252mit[39m[38;5;252m;[39m[38;5;252m [39m[38;5;246m// initialize the iterator for vector[39m
+[38;5;70;01mfor[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;252mit[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mmy_vector[39m[38;5;252m.[39m[38;5;252mbegin[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;252mit[39m[38;5;252m [39m[38;5;252m![39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mmy_vector[39m[38;5;252m.[39m[38;5;252mend[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;252m+[39m[38;5;252m+[39m[38;5;252mit[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m	[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252m*[39m[38;5;252mit[39m[38;5;252m  [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mendl[39m[38;5;252m;[39m
+[38;5;252m}[39m
+
+[38;5;246m// Set[39m
+[38;5;246m// Sets are containers that store unique elements following a specific order.[39m
+[38;5;246m// Set is a very useful container to store unique values in sorted order[39m
+[38;5;246m// without any other functions or code.[39m
+
+[38;5;1;01m#[39;00m[38;5;1;01minclude[39;00m[38;5;246m<set>[39m
+[38;5;252mset[39m[38;5;252m<[39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m [39m[38;5;252mST[39m[38;5;252m;[39m[38;5;252m    [39m[38;5;246m// Will initialize the set of int data type[39m
+[38;5;252mST[39m[38;5;252m.[39m[38;5;252minsert[39m[38;5;252m([39m[38;5;67m30[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Will insert the value 30 in set ST[39m
+[38;5;252mST[39m[38;5;252m.[39m[38;5;252minsert[39m[38;5;252m([39m[38;5;67m10[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Will insert the value 10 in set ST[39m
+[38;5;252mST[39m[38;5;252m.[39m[38;5;252minsert[39m[38;5;252m([39m[38;5;67m20[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Will insert the value 20 in set ST[39m
+[38;5;252mST[39m[38;5;252m.[39m[38;5;252minsert[39m[38;5;252m([39m[38;5;67m30[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Will insert the value 30 in set ST[39m
+[38;5;246m// Now elements of sets are as follows[39m
+[38;5;246m//  10 20 30[39m
+
+[38;5;246m// To erase an element[39m
+[38;5;252mST[39m[38;5;252m.[39m[38;5;252merase[39m[38;5;252m([39m[38;5;67m20[39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Will erase element with value 20[39m
+[38;5;246m// Set ST: 10 30[39m
+[38;5;246m// To iterate through Set we use iterators[39m
+[38;5;252mset[39m[38;5;252m<[39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252miterator[39m[38;5;252m [39m[38;5;252mit[39m[38;5;252m;[39m
+[38;5;70;01mfor[39;00m[38;5;252m([39m[38;5;252mit[39m[38;5;252m=[39m[38;5;252mST[39m[38;5;252m.[39m[38;5;252mbegin[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252mit[39m[38;5;252m<[39m[38;5;252mST[39m[38;5;252m.[39m[38;5;252mend[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252mit[39m[38;5;252m+[39m[38;5;252m+[39m[38;5;252m)[39m[38;5;252m [39m[38;5;252m{[39m
+[38;5;252m	[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252m*[39m[38;5;252mit[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mendl[39m[38;5;252m;[39m
+[38;5;252m}[39m
+[38;5;246m// Output:[39m
+[38;5;246m// 10[39m
+[38;5;246m// 30[39m
+
+[38;5;246m// To clear the complete container we use Container_name.clear()[39m
+[38;5;252mST[39m[38;5;252m.[39m[38;5;252mclear[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mST[39m[38;5;252m.[39m[38;5;252msize[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// will print the size of set ST[39m
+[38;5;246m// Output: 0[39m
+
+[38;5;246m// NOTE: for duplicate elements we can use multiset[39m
+
+[38;5;246m// Map[39m
+[38;5;246m// Maps store elements formed by a combination of a key value[39m
+[38;5;246m// and a mapped value, following a specific order.[39m
+
+[38;5;1;01m#[39;00m[38;5;1;01minclude[39;00m[38;5;246m<map>[39m
+[38;5;252mmap[39m[38;5;252m<[39m[38;5;70;01mchar[39;00m[38;5;252m,[39m[38;5;252m [39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m [39m[38;5;252mmymap[39m[38;5;252m;[39m[38;5;252m  [39m[38;5;246m// Will initialize the map with key as char and value as int[39m
+
+[38;5;252mmymap[39m[38;5;252m.[39m[38;5;252minsert[39m[38;5;252m([39m[38;5;252mpair[39m[38;5;252m<[39m[38;5;70;01mchar[39;00m[38;5;252m,[39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m([39m[38;5;214m'[39m[38;5;214mA[39m[38;5;214m'[39m[38;5;252m,[39m[38;5;67m1[39m[38;5;252m)[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;246m// Will insert value 1 for key A[39m
+[38;5;252mmymap[39m[38;5;252m.[39m[38;5;252minsert[39m[38;5;252m([39m[38;5;252mpair[39m[38;5;252m<[39m[38;5;70;01mchar[39;00m[38;5;252m,[39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m([39m[38;5;214m'[39m[38;5;214mZ[39m[38;5;214m'[39m[38;5;252m,[39m[38;5;67m26[39m[38;5;252m)[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;246m// Will insert value 26 for key Z[39m
+
+[38;5;246m// To iterate[39m
+[38;5;252mmap[39m[38;5;252m<[39m[38;5;70;01mchar[39;00m[38;5;252m,[39m[38;5;70;01mint[39;00m[38;5;252m>[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252miterator[39m[38;5;252m [39m[38;5;252mit[39m[38;5;252m;[39m
+[38;5;70;01mfor[39;00m[38;5;252m [39m[38;5;252m([39m[38;5;252mit[39m[38;5;252m=[39m[38;5;252mmymap[39m[38;5;252m.[39m[38;5;252mbegin[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;252mit[39m[38;5;252m![39m[38;5;252m=[39m[38;5;252mmymap[39m[38;5;252m.[39m[38;5;252mend[39m[38;5;252m([39m[38;5;252m)[39m[38;5;252m;[39m[38;5;252m [39m[38;5;252m+[39m[38;5;252m+[39m[38;5;252mit[39m[38;5;252m)[39m
+[38;5;252m    [39m[38;5;252mstd[39m[38;5;252m:[39m[38;5;252m:[39m[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mit[39m[38;5;252m-[39m[38;5;252m>[39m[38;5;252mfirst[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m"[39m[38;5;214m->[39m[38;5;214m"[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mit[39m[38;5;252m-[39m[38;5;252m>[39m[38;5;252msecond[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;214m'[39m[38;5;214m\n[39m[38;5;214m'[39m[38;5;252m;[39m
+[38;5;246m// Output:[39m
+[38;5;246m// A->1[39m
+[38;5;246m// Z->26[39m
+
+[38;5;246m// To find the value corresponding to a key[39m
+[38;5;252mit[39m[38;5;252m [39m[38;5;252m=[39m[38;5;252m [39m[38;5;252mmymap[39m[38;5;252m.[39m[38;5;252mfind[39m[38;5;252m([39m[38;5;214m'[39m[38;5;214mZ[39m[38;5;214m'[39m[38;5;252m)[39m[38;5;252m;[39m
+[38;5;252mcout[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;252mit[39m[38;5;252m-[39m[38;5;252m>[39m[38;5;252msecond[39m[38;5;252m;[39m
+
+[38;5;246m// Output: 26[39m
+
+
+[38;5;246m///////////////////////////////////[39m
+[38;5;246m// Logical and Bitwise operators[39m
+[38;5;246m//////////////////////////////////[39m
+
+[38;5;246m// Most of the operators in C++ are same as in other languages[39m
+
+[38;5;246m// Logical operators[39m
+
+[38;5;246m// C++ uses Short-circuit evaluation for boolean expressions, i.e, the second argument is executed or[39m
+[38;5;246m// evaluated only if the first argument does not suffice to determine the value of the expression[39m
+
+[38;5;31mtrue[39m[38;5;252m [39m[38;5;252m&[39m[38;5;252m&[39m[38;5;252m [39m[38;5;31mfalse[39m[38;5;252m [39m[38;5;246m// Performs **logical and** to yield false[39m
+[38;5;31mtrue[39m[38;5;252m [39m[38;5;252m|[39m[38;5;252m|[39m[38;5;252m [39m[38;5;31mfalse[39m[38;5;252m [39m[38;5;246m// Performs **logical or** to yield true[39m
+[38;5;252m![39m[38;5;252m [39m[38;5;31mtrue[39m[38;5;252m        [39m[38;5;246m// Performs **logical not** to yield false[39m
+
+[38;5;246m// Instead of using symbols equivalent keywords can be used[39m
+[38;5;31mtrue[39m[38;5;252m [39m[38;5;252mand[39m[38;5;252m [39m[38;5;31mfalse[39m[38;5;252m [39m[38;5;246m// Performs **logical and** to yield false[39m
+[38;5;31mtrue[39m[38;5;252m [39m[38;5;252mor[39m[38;5;252m [39m[38;5;31mfalse[39m[38;5;252m  [39m[38;5;246m// Performs **logical or** to yield true[39m
+[38;5;252mnot[39m[38;5;252m [39m[38;5;31mtrue[39m[38;5;252m       [39m[38;5;246m// Performs **logical not** to yield false[39m
+
+[38;5;246m// Bitwise operators[39m
+
+[38;5;246m// **<<** Left Shift Operator[39m
+[38;5;246m// << shifts bits to the left[39m
+[38;5;67m4[39m[38;5;252m [39m[38;5;252m<[39m[38;5;252m<[39m[38;5;252m [39m[38;5;67m1[39m[38;5;252m [39m[38;5;246m// Shifts bits of 4 to left by 1 to give 8[39m
+[38;5;246m// x << n can be thought as x * 2^n[39m
+
+
+[38;5;246m// **>>** Right Shift Operator[39m
+[38;5;246m// >> shifts bits to the right[39m
+[38;5;67m4[39m[38;5;252m [39m[38;5;252m>[39m[38;5;252m>[39m[38;5;252m [39m[38;5;67m1[39m[38;5;252m [39m[38;5;246m// Shifts bits of 4 to right by 1 to give 2[39m
+[38;5;246m// x >> n can be thought as x / 2^n[39m
+
+[38;5;252m~[39m[38;5;67m4[39m[38;5;252m    [39m[38;5;246m// Performs a bitwise not[39m
+[38;5;67m4[39m[38;5;252m [39m[38;5;252m|[39m[38;5;252m [39m[38;5;67m3[39m[38;5;252m [39m[38;5;246m// Performs bitwise or[39m
+[38;5;67m4[39m[38;5;252m [39m[38;5;252m&[39m[38;5;252m [39m[38;5;67m3[39m[38;5;252m [39m[38;5;246m// Performs bitwise and[39m
+[38;5;67m4[39m[38;5;252m [39m[38;5;252m^[39m[38;5;252m [39m[38;5;67m3[39m[38;5;252m [39m[38;5;246m// Performs bitwise xor[39m
+
+[38;5;246m// Equivalent keywords are[39m
+[38;5;252mcompl[39m[38;5;252m [39m[38;5;67m4[39m[38;5;252m    [39m[38;5;246m// Performs a bitwise not[39m
+[38;5;67m4[39m[38;5;252m [39m[38;5;252mbitor[39m[38;5;252m [39m[38;5;67m3[39m[38;5;252m  [39m[38;5;246m// Performs bitwise or[39m
+[38;5;67m4[39m[38;5;252m [39m[38;5;252mbitand[39m[38;5;252m [39m[38;5;67m3[39m[38;5;252m [39m[38;5;246m// Performs bitwise and[39m
+[38;5;67m4[39m[38;5;252m [39m[38;5;252mxor[39m[38;5;252m [39m[38;5;67m3[39m[38;5;252m    [39m[38;5;246m// Performs bitwise xor[39m

@@ -194,25 +194,6 @@ ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(std::string_view dat
     return sgr_parts;
 }
 
-//PERF: 1016[µs] without branching
-//      1071 with branching
-//      1502 with tas enabled
-
-// vectors instead of stacks
-// average simple = 1064[µs]
-// average strict = 1442[µs]
-
-// -2 vectors
-// average simple = 1058[µs]
-// average strict = 1382[µs]
-
-// average simple = 1065[µs]
-// average strict = 1421[µs]
-
-// average simple = 1089[µs]
-// average strict = 1397[µs]
-
-
 
 //TODO: 
 void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any good here?*/, std::string& out/*non const!*/, bool strict)
