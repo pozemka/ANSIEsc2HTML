@@ -65,3 +65,4 @@ Results:
 * `simpleParse` ~ 1082 µs
 * `strictParse` ~ 1400 µs
 
+![Build and test](https://github.com/pozemka/ANSIEsc2HTML/workflows/Build%20and%20test/badge.svg)
