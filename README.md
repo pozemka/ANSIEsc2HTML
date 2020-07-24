@@ -41,7 +41,7 @@ Can only disable SGR parameters in reverse order they where enabled. Terminal em
 This function is suitable for ANSI code generated from markup languages like XML or Markdown.
 
 ### strictParse
-Cans disable SGR parameters in any order. However it is ~40% slower than simpleParse.
+Can disable SGR parameters in any order. However it is ~40% slower than simpleParse.
 
 ## Compilation:
 This will produce release versions of static and dynamic libraries and test executable:
