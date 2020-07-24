@@ -13,29 +13,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-      
-    - name: configure
-      shell: bash
-      run: |
-        mkdir build
-        cd build/
-        cmake -DCMAKE_BUILD_TYPE=Release ..
+        - uses: actions/checkout@v2
         
-    - name: make
-      shell: bash
-      run: |
-        cd build/
-        make
+        - name: making build directory
+        shell: bash
+        run: mkdir build
+            
+        - name: cmake configure
+        run: -DCMAKE_BUILD_TYPE=Release ..
+        working-directory: build
+        
+        - name: cmake build
+        shell: bash
+        run: cmake --build .
+        working-directory: build
 
-    - name: run test
-      run: |
-        build/tests > res.txt
-
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        # Artifact name
-        name: test-result.txt # optional
-        # A file, directory or wildcard pattern that describes what to upload
-        path: res.txt
+        - name: cmake test
+        run: ctest --output-on-failure
+        working-directory: build_dir

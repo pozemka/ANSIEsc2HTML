@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Mikhail Bryukhovets
+ * Copyright (c) 2019-2020 Mikhail Bryukhovets
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -30,7 +30,6 @@
 #include <deque>
 #include <iostream>
 #include <sstream>
-#include <stack>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
@@ -341,7 +340,7 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
                 (30 <= sgr_code && 37 >= sgr_code) ||
                 (90 <= sgr_code && 97 >= sgr_code)
            ) {                                              // foreground color from table
-            // For now using <font color> instead of <span style>. It is little shorter and should not brake in most of cases.
+            // For now using <font color> instead of <span style>. It is little shorter and should not break in most of cases.
             out.append(R"(<font color=")");                 // Not very beautilful string construction. Can use {fmt} or wait for С++20 with eel.is/c++draft/format.
             out.append(decodeColorBasic(sgr_code));
             out.append(R"(">)");
@@ -777,7 +776,6 @@ std::string_view ANSI_SGR2HTML::impl::decodeColorBasic(unsigned char color_code)
  * @param attribute_counter
  * @param out
  * NOTE: attribute_counter passed as reference
- * TODO: try to replace stack with vector
  */
 void ANSI_SGR2HTML::impl::resetAttribute(Tag tag, unsigned int& attribute_counter, std::string& out, bool strict)
 {

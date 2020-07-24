@@ -39,3 +39,11 @@ set_target_properties(ANSIEsc2HTML ANSIEsc2HTML_static tests PROPERTIES
     CXX_STANDARD 17
     CXX_EXTENSIONS OFF
 )
+
+# locate Catch2 scripts for CMake
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+include(CTest)
+include(Catch)
+
+# register Catch2 tests as individual CTest tests
+catch_discover_tests(tests)
