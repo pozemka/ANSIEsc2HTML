@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(ANSI_SGR2HTML VERSION 1.0.0 DESCRIPTION "Basic ANSI Select Graphic Rendition Control Sequence to HTML library.")
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 set(LIBRARY_SRCS
 #     src/ansi_sgr2html.h
     src/ansi_esc2html.cpp
