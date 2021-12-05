@@ -18,7 +18,7 @@ add_library(ANSIEsc2HTML_static STATIC
 )
 
 add_executable(tests
-#    EXCLUDE_FROM_ALL
+    EXCLUDE_FROM_ALL
     tests/catch.hpp
     tests/tests.cpp
 )
