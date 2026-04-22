@@ -13,3 +13,4 @@ ANSIEsc2HTML.pro.user
 Makefile
 Makefile.*
 .qmake.stash
+/.vs/*
