@@ -25,6 +25,10 @@ jobs:
           run: cmake --build .
           working-directory: build
 
+        - name: cmake build tests
+          run: cmake --build . --target tests
+          working-directory: build
+
         - name: cmake test
           run: ctest --output-on-failure
           working-directory: build
