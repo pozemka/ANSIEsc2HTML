@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Mikhail Bryukhovets
+ * Copyright (c) 2019-2026 Mikhail Bryukhovets
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -197,8 +197,7 @@ ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(std::string_view dat
 //TODO: 
 void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any good here?*/, std::string& out/*non const!*/, bool strict)
 {
-    if (sgr_parts.empty())
-        return;                                         // Nothing to parse
+    while (!sgr_parts.empty()) {
     unsigned char sgr_code = sgr_parts[0];
 
     switch (sgr_code) {
@@ -252,14 +251,14 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
         resetAttribute(Tag::BG_COLOR, counter_bg_color_, out, strict);
         break;
     case 38:                                                // Set foreground color
-        if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit foreground color // 38:5:⟨n⟩
+        if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   
+            // 8-bit foreground color // 38:5:⟨n⟩
             // OPTIMIZATION: foreground and background cases are very similar. Extract them as function?
 //            static const std::string_view font_color_tag{R"(<font color=")"};
 //            out.append(font_color_tag); // OPTIMIZATION: const char* can be replaced with string_view
             out.append(R"(<font color=")");
             out.append(decodeColor256(sgr_parts[2]));
             out.append(R"(">)");
-            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
             if(strict) {
                 std::string ts;
                 ts.reserve(22);
@@ -268,16 +267,16 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
                 ts.append(R"(">)");
                 string_stack_all_.push_back(ts);
             } 
+            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
             stack_all_.push_back(Tag::FG_COLOR);
             counter_fg_color_++;
-            // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
+            // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
             out.append(R"(<font color="#)");
             appendHexNumber(sgr_parts[2], out);
             appendHexNumber(sgr_parts[3], out);
             appendHexNumber(sgr_parts[4], out);
             out.append(R"(">)");
-            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
             if(strict) {
                 std::string ts;
                 ts.reserve(22);
@@ -288,6 +287,7 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
                 ts.append(R"(">)");
                 string_stack_all_.push_back(ts);
             } 
+            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
             stack_all_.push_back(Tag::FG_COLOR);
             counter_fg_color_++;
         } else {
@@ -295,11 +295,11 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
         }
         break;
     case 48:                                                // Set background color
-        if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   // 8-bit background color // 48:5:⟨n⟩
+        if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   
+            // 8-bit background color // 48:5:⟨n⟩
             out.append(R"(<span style="background-color:)");
             out.append(decodeColor256(sgr_parts[2]));
             out.append(R"(">)");
-            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
             if(strict) {
                 std::string ts;
                 ts.reserve(39);
@@ -308,16 +308,16 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
                 ts.append(R"(">)");
                 string_stack_all_.push_back(ts);
             }
+            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
             stack_all_.push_back(Tag::BG_COLOR);
             counter_bg_color_++;
-            // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
         } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
+            // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
             out.append(R"(<span style="background-color:#)");
             appendHexNumber(sgr_parts[2], out);
             appendHexNumber(sgr_parts[3], out);
             appendHexNumber(sgr_parts[4], out);
             out.append(R"(">)");
-            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
             if(strict) {
                 std::string ts;
                 ts.reserve(39);
@@ -328,6 +328,7 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
                 ts.append(R"(">)");
                 string_stack_all_.push_back(ts);
             } 
+            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
             stack_all_.push_back(Tag::BG_COLOR);
             counter_bg_color_++;
         } else {
@@ -381,10 +382,7 @@ void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any goo
         sgr_parts.pop_front();
     }
 
-    if (sgr_parts.empty())                                  // No more parameters
-        return;                                         // OPTIMIZATION: same check is in the beginning of function. Is this one redundant or is it worth not to call processSGR one more time vs checks?
-
-    processSGR(std::forward<SGRParts>(sgr_parts), out, strict);
+}
 }
 
 void ANSI_SGR2HTML::impl::appendHTMLSymbol(char symbol, std::string& out)
@@ -413,7 +411,7 @@ void ANSI_SGR2HTML::impl::appendHTMLSymbol(char symbol, std::string& out)
     case '\0':  //\0 is isgnored.
         break;
     default:
-        out.append(&symbol, 1);
+        out.push_back(symbol);
     }
 }
 
@@ -839,12 +837,12 @@ ANSI_SGR2HTML::ANSI_SGR2HTML() :
 ANSI_SGR2HTML::~ANSI_SGR2HTML()
 = default;
 
-std::string ANSI_SGR2HTML::simpleParse(const std::string &raw_data)
+std::string ANSI_SGR2HTML::simpleParse(std::string_view raw_data)
 {
     return pimpl_->parse(raw_data, false);
 }
 
-std::string ANSI_SGR2HTML::strictParse(const std::string &raw_data)
+std::string ANSI_SGR2HTML::strictParse(std::string_view raw_data)
 {
     return pimpl_->parse(raw_data, true);
 }

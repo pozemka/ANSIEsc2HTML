@@ -41,13 +41,19 @@ public:
     
     /**
      * @brief simpleParse parses string, with ANSI escape sequences to HTML string
+     * Can only disable SGR parameters in reverse order they where enabled.
      * @param raw_data string to parse
      * @return HTML string
      */
-    std::string simpleParse(const std::string& raw_data);
+    std::string simpleParse(std::string_view raw_data);
+    
     /**
+     * @brief strictParse parses string, with ANSI escape sequences to HTML string
+     * Can disable SGR parameters in any order
+     * @param raw_data string to parse
+     * @return HTML string
      */
-    std::string strictParse(const std::string& raw_data);
+    std::string strictParse(std::string_view raw_data);
 
     ANSI_SGR2HTML(const ANSI_SGR2HTML &other) = delete;
     ANSI_SGR2HTML(ANSI_SGR2HTML &&other) = delete;
