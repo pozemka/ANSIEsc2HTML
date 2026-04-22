@@ -198,191 +198,191 @@ ANSI_SGR2HTML::impl::SGRParts ANSI_SGR2HTML::impl::splitSGR(std::string_view dat
 void ANSI_SGR2HTML::impl::processSGR(SGRParts&& sgr_parts/*is rvalue ref any good here?*/, std::string& out/*non const!*/, bool strict)
 {
     while (!sgr_parts.empty()) {
-    unsigned char sgr_code = sgr_parts[0];
+        unsigned char sgr_code = sgr_parts[0];
 
-    switch (sgr_code) {
-    case 0:                                                 // Reset / Normal	all attributes off
-        resetAll(out);
-        break;
-    case 1:                                                 // Bold or increased intensity
-        out.append("<b>");
-        if(strict)
-            string_stack_all_.push_back("<b>");
-        stack_all_.push_back(Tag::BOLD);
-        counter_intensity_++;
-        break;
-    case 3:                                                 // Italic
-        out.append("<i>");
-        if(strict)
-            string_stack_all_.push_back("<i>");
-        stack_all_.push_back(Tag::ITALIC);
-        counter_italic_++;
-        break;
-    case 4:                                                 // Underline
-        out.append("<u>");
-        if(strict)
-            string_stack_all_.push_back("<u>");
-        stack_all_.push_back(Tag::UNDERLINE);
-        counter_underline_++;
-        break;
-    case 9:                                                 // Crossed-out
-        out.append("<s>");
-        if(strict)
-            string_stack_all_.push_back("<s>");
-        stack_all_.push_back(Tag::CROSS_OUT);
-        counter_cross_out_++;
-        break;
-    case 22:                                                // Normal color or intensity
-        resetAttribute(Tag::BOLD, counter_intensity_, out, strict);
-        break;
-    case 23:                                                // Not italic, not Fraktur
-        resetAttribute(Tag::ITALIC, counter_italic_, out, strict);
-        break;
-    case 24:                                                // Underline off
-        resetAttribute(Tag::UNDERLINE, counter_underline_, out, strict);
-        break;
-    case 29:                                                // Not crossed out
-        resetAttribute(Tag::CROSS_OUT, counter_cross_out_, out, strict);
-        break;
-    case 39:                                                // Default foreground color
-        resetAttribute(Tag::FG_COLOR, counter_fg_color_, out, strict);
-        break;
-    case 49:                                                // Default background color
-        resetAttribute(Tag::BG_COLOR, counter_bg_color_, out, strict);
-        break;
-    case 38:                                                // Set foreground color
-        if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   
-            // 8-bit foreground color // 38:5:⟨n⟩
-            // OPTIMIZATION: foreground and background cases are very similar. Extract them as function?
-//            static const std::string_view font_color_tag{R"(<font color=")"};
-//            out.append(font_color_tag); // OPTIMIZATION: const char* can be replaced with string_view
-            out.append(R"(<font color=")");
-            out.append(decodeColor256(sgr_parts[2]));
-            out.append(R"(">)");
-            if(strict) {
-                std::string ts;
-                ts.reserve(22);
-                ts.append(R"(<font color=")");
-                ts.append(decodeColor256(sgr_parts[2]));
-                ts.append(R"(">)");
-                string_stack_all_.push_back(ts);
-            } 
-            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
-            stack_all_.push_back(Tag::FG_COLOR);
-            counter_fg_color_++;
-        } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
-            // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
-            out.append(R"(<font color="#)");
-            appendHexNumber(sgr_parts[2], out);
-            appendHexNumber(sgr_parts[3], out);
-            appendHexNumber(sgr_parts[4], out);
-            out.append(R"(">)");
-            if(strict) {
-                std::string ts;
-                ts.reserve(22);
-                ts.append(R"(<font color="#)");
-                appendHexNumber(sgr_parts[2], ts);
-                appendHexNumber(sgr_parts[3], ts);
-                appendHexNumber(sgr_parts[4], ts);
-                ts.append(R"(">)");
-                string_stack_all_.push_back(ts);
-            } 
-            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
-            stack_all_.push_back(Tag::FG_COLOR);
-            counter_fg_color_++;
-        } else {
-            return;
-        }
-        break;
-    case 48:                                                // Set background color
-        if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {   
-            // 8-bit background color // 48:5:⟨n⟩
-            out.append(R"(<span style="background-color:)");
-            out.append(decodeColor256(sgr_parts[2]));
-            out.append(R"(">)");
-            if(strict) {
-                std::string ts;
-                ts.reserve(39);
-                ts.append(R"(<span style="background-color:)");
-                ts.append(decodeColor256(sgr_parts[2]));
-                ts.append(R"(">)");
-                string_stack_all_.push_back(ts);
+        switch (sgr_code) {
+        case 0:                                                 // Reset / Normal	all attributes off
+            resetAll(out);
+            break;
+        case 1:                                                 // Bold or increased intensity
+            out.append("<b>");
+            if (strict)
+                string_stack_all_.push_back("<b>");
+            stack_all_.push_back(Tag::BOLD);
+            counter_intensity_++;
+            break;
+        case 3:                                                 // Italic
+            out.append("<i>");
+            if (strict)
+                string_stack_all_.push_back("<i>");
+            stack_all_.push_back(Tag::ITALIC);
+            counter_italic_++;
+            break;
+        case 4:                                                 // Underline
+            out.append("<u>");
+            if (strict)
+                string_stack_all_.push_back("<u>");
+            stack_all_.push_back(Tag::UNDERLINE);
+            counter_underline_++;
+            break;
+        case 9:                                                 // Crossed-out
+            out.append("<s>");
+            if (strict)
+                string_stack_all_.push_back("<s>");
+            stack_all_.push_back(Tag::CROSS_OUT);
+            counter_cross_out_++;
+            break;
+        case 22:                                                // Normal color or intensity
+            resetAttribute(Tag::BOLD, counter_intensity_, out, strict);
+            break;
+        case 23:                                                // Not italic, not Fraktur
+            resetAttribute(Tag::ITALIC, counter_italic_, out, strict);
+            break;
+        case 24:                                                // Underline off
+            resetAttribute(Tag::UNDERLINE, counter_underline_, out, strict);
+            break;
+        case 29:                                                // Not crossed out
+            resetAttribute(Tag::CROSS_OUT, counter_cross_out_, out, strict);
+            break;
+        case 39:                                                // Default foreground color
+            resetAttribute(Tag::FG_COLOR, counter_fg_color_, out, strict);
+            break;
+        case 49:                                                // Default background color
+            resetAttribute(Tag::BG_COLOR, counter_bg_color_, out, strict);
+            break;
+        case 38:                                                // Set foreground color
+            if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {
+                // 8-bit foreground color // 38:5:⟨n⟩
+                // OPTIMIZATION: foreground and background cases are very similar. Extract them as function?
+    //            static const std::string_view font_color_tag{R"(<font color=")"};
+    //            out.append(font_color_tag); // OPTIMIZATION: const char* can be replaced with string_view
+                out.append(R"(<font color=")");
+                out.append(decodeColor256(sgr_parts[2]));
+                out.append(R"(">)");
+                if (strict) {
+                    std::string ts;
+                    ts.reserve(22);
+                    ts.append(R"(<font color=")");
+                    ts.append(decodeColor256(sgr_parts[2]));
+                    ts.append(R"(">)");
+                    string_stack_all_.push_back(ts);
+                }
+                sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
+                stack_all_.push_back(Tag::FG_COLOR);
+                counter_fg_color_++;
+            } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
+                // 24-bit foreground color //38;2;⟨r⟩;⟨g⟩;⟨b⟩
+                out.append(R"(<font color="#)");
+                appendHexNumber(sgr_parts[2], out);
+                appendHexNumber(sgr_parts[3], out);
+                appendHexNumber(sgr_parts[4], out);
+                out.append(R"(">)");
+                if (strict) {
+                    std::string ts;
+                    ts.reserve(22);
+                    ts.append(R"(<font color="#)");
+                    appendHexNumber(sgr_parts[2], ts);
+                    appendHexNumber(sgr_parts[3], ts);
+                    appendHexNumber(sgr_parts[4], ts);
+                    ts.append(R"(">)");
+                    string_stack_all_.push_back(ts);
+                }
+                sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
+                stack_all_.push_back(Tag::FG_COLOR);
+                counter_fg_color_++;
+            } else {
+                return;
             }
-            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
-            stack_all_.push_back(Tag::BG_COLOR);
-            counter_bg_color_++;
-        } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
-            // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
-            out.append(R"(<span style="background-color:#)");
-            appendHexNumber(sgr_parts[2], out);
-            appendHexNumber(sgr_parts[3], out);
-            appendHexNumber(sgr_parts[4], out);
-            out.append(R"(">)");
-            if(strict) {
-                std::string ts;
-                ts.reserve(39);
-                ts.append(R"(<span style="background-color:#)");
-                appendHexNumber(sgr_parts[2], ts);
-                appendHexNumber(sgr_parts[3], ts);
-                appendHexNumber(sgr_parts[4], ts);
-                ts.append(R"(">)");
-                string_stack_all_.push_back(ts);
-            } 
-            sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
-            stack_all_.push_back(Tag::BG_COLOR);
-            counter_bg_color_++;
-        } else {
-            return;
-        }
-        break;
+            break;
+        case 48:                                                // Set background color
+            if (5 == sgr_parts[1] && sgr_parts.size() >= 3) {
+                // 8-bit background color // 48:5:⟨n⟩
+                out.append(R"(<span style="background-color:)");
+                out.append(decodeColor256(sgr_parts[2]));
+                out.append(R"(">)");
+                if (strict) {
+                    std::string ts;
+                    ts.reserve(39);
+                    ts.append(R"(<span style="background-color:)");
+                    ts.append(decodeColor256(sgr_parts[2]));
+                    ts.append(R"(">)");
+                    string_stack_all_.push_back(ts);
+                }
+                sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 3);
+                stack_all_.push_back(Tag::BG_COLOR);
+                counter_bg_color_++;
+            } else if (2 == sgr_parts[1] && sgr_parts.size() >= 5) {
+                // 24-bit background color //48;2;⟨r⟩;⟨g⟩;⟨b⟩
+                out.append(R"(<span style="background-color:#)");
+                appendHexNumber(sgr_parts[2], out);
+                appendHexNumber(sgr_parts[3], out);
+                appendHexNumber(sgr_parts[4], out);
+                out.append(R"(">)");
+                if (strict) {
+                    std::string ts;
+                    ts.reserve(39);
+                    ts.append(R"(<span style="background-color:#)");
+                    appendHexNumber(sgr_parts[2], ts);
+                    appendHexNumber(sgr_parts[3], ts);
+                    appendHexNumber(sgr_parts[4], ts);
+                    ts.append(R"(">)");
+                    string_stack_all_.push_back(ts);
+                }
+                sgr_parts.erase(sgr_parts.begin(), sgr_parts.begin() + 5);
+                stack_all_.push_back(Tag::BG_COLOR);
+                counter_bg_color_++;
+            } else {
+                return;
+            }
+            break;
 
-    default:                                                // SGR code ranges
-        if (
+        default:                                                // SGR code ranges
+            if (
                 (30 <= sgr_code && 37 >= sgr_code) ||
                 (90 <= sgr_code && 97 >= sgr_code)
-           ) {                                              // foreground color from table
-            // For now using <font color> instead of <span style>. It is little shorter and should not break in most of cases.
-            out.append(R"(<font color=")");                 // Not very beautilful string construction. Can use {fmt} or wait for С++20 with eel.is/c++draft/format.
-            out.append(decodeColorBasic(sgr_code));
-            out.append(R"(">)");
-            if(strict) {
-                std::string ts;
-                ts.reserve(22);
-                ts.append(R"(<font color=")");
-                ts.append(decodeColorBasic(sgr_code));
-                ts.append(R"(">)");
-                string_stack_all_.push_back(ts);
-            } 
-            stack_all_.push_back(Tag::FG_COLOR);
-            counter_fg_color_++;
-        } else if (
-                   (40 <= sgr_code && 47 >= sgr_code) ||
-                   (100 <= sgr_code && 107 >= sgr_code)
-                  ) {                                       // background color from table
-            out.append(R"(<span style="background-color:)");
-            out.append(decodeColorBasic(sgr_code));
-            out.append(R"(">)");
-            if(strict) {
-                std::string ts;
-                ts.reserve(39);
-                ts.append(R"(<span style="background-color:)");
-                ts.append(decodeColorBasic(sgr_code));
-                ts.append(R"(">)");
-                string_stack_all_.push_back(ts);
-            } 
-            stack_all_.push_back(Tag::BG_COLOR);
-            counter_bg_color_++;
-        } else {
-//            std::cerr << "ANSI_SGR2HTML: unsupported SGR: " <<  static_cast<unsigned int>(sgr_code) << std::endl;
+                ) {                                              // foreground color from table
+                // For now using <font color> instead of <span style>. It is little shorter and should not break in most of cases.
+                out.append(R"(<font color=")");                 // Not very beautilful string construction. Can use {fmt} or wait for С++20 with eel.is/c++draft/format.
+                out.append(decodeColorBasic(sgr_code));
+                out.append(R"(">)");
+                if (strict) {
+                    std::string ts;
+                    ts.reserve(22);
+                    ts.append(R"(<font color=")");
+                    ts.append(decodeColorBasic(sgr_code));
+                    ts.append(R"(">)");
+                    string_stack_all_.push_back(ts);
+                }
+                stack_all_.push_back(Tag::FG_COLOR);
+                counter_fg_color_++;
+            } else if (
+                (40 <= sgr_code && 47 >= sgr_code) ||
+                (100 <= sgr_code && 107 >= sgr_code)
+                ) {                                       // background color from table
+                out.append(R"(<span style="background-color:)");
+                out.append(decodeColorBasic(sgr_code));
+                out.append(R"(">)");
+                if (strict) {
+                    std::string ts;
+                    ts.reserve(39);
+                    ts.append(R"(<span style="background-color:)");
+                    ts.append(decodeColorBasic(sgr_code));
+                    ts.append(R"(">)");
+                    string_stack_all_.push_back(ts);
+                }
+                stack_all_.push_back(Tag::BG_COLOR);
+                counter_bg_color_++;
+            } else {
+                //            std::cerr << "ANSI_SGR2HTML: unsupported SGR: " <<  static_cast<unsigned int>(sgr_code) << std::endl;
+            }
         }
-    }
 
-    // Pop processed parameters
-    if (sgr_code != 38 && sgr_code != 48)  {  // All parameters except 38 and 48 contain single SGR part. 38 and 48 clean themselves (can pop 3 or 5)
-        sgr_parts.pop_front();
-    }
+        // Pop processed parameters
+        if (sgr_code != 38 && sgr_code != 48) {  // All parameters except 38 and 48 contain single SGR part. 38 and 48 clean themselves (can pop 3 or 5)
+            sgr_parts.pop_front();
+        }
 
-}
+    }
 }
 
 void ANSI_SGR2HTML::impl::appendHTMLSymbol(char symbol, std::string& out)
