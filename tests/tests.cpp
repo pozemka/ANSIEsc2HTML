@@ -139,6 +139,20 @@ TEST_CASE( "complex", "[complex]") {
     }
 }
 
+TEST_CASE("triple formatting combination", "[triple_format]") {
+    ANSI_SGR2HTML a2h;
+    SECTION("bold+italic+underline") {
+        std::string input = "\x1b[1;3;4m triple \x1b[22;23;24m";
+        std::string expected = "<b><i><u> triple </u></i></b>";
+        CHECK(a2h.simpleParse(input) == body_start + expected + body_end);
+    }
+    SECTION("all formatting with color") {
+        std::string input = "\x1b[1;3;4;9;31;42m all \x1b[0m";
+        std::string expected = "<b><i><u><s><font color=\"#de382b\"><span style=\"background-color:#39b54a\"> all </span></font></s></u></i></b>";
+        CHECK(a2h.simpleParse(input) == body_start + expected + body_end);
+    }
+}
+
 // NOTE: HTML produced from bad input is valid but not matching input.
 TEST_CASE( "basic bad inputs for simpleParse", "[basic_bad_simple]") {
     ANSI_SGR2HTML a2h;
@@ -232,8 +246,20 @@ TEST_CASE( "Unsupported CSIs for simpleParse", "[unsupported_csi_simple]") {
 }
 
 
-TEST_CASE( "complex bad inputs for simpleParse", "[complex_bad_simple]") {
+TEST_CASE("malformed SGR sequences", "[malformed]") {
     ANSI_SGR2HTML a2h;
+    SECTION("partial escape") {
+        CHECK(a2h.simpleParse("\x1b[") == body_start + body_end);
+        CHECK(a2h.simpleParse("\x1b[3") == body_start + body_end);
+    }
+    SECTION("incomplete color codes") {
+        CHECK(a2h.simpleParse("\x1b[38;") == body_start + body_end);
+        CHECK(a2h.simpleParse("\x1b[38;5;") == body_start + body_end);
+        CHECK(a2h.simpleParse("\x1b[38;2;255;") == body_start + body_end);
+    }
+    SECTION("multiple resets") {
+        CHECK(a2h.simpleParse("\x1b[0m\x1b[0m\x1b[0m") == body_start + body_end);
+    }
 }
 
 TEST_CASE( "strict and simple. no throw test", "[no_throw]") {
@@ -266,5 +292,23 @@ TEST_CASE( "strict and simple. no throw test", "[no_throw]") {
     SECTION( "strictParse then simpleParse" ) {
         REQUIRE_NOTHROW(a2h.strictParse(test_case));
         REQUIRE_NOTHROW(a2h.simpleParse(test_case));
+    }
+}
+
+// TODO: test cr, lf, crlf, etc. (For now CR is silently ignored, LF converted to <br />)
+
+TEST_CASE("line endings", "[lineendings]") {
+    ANSI_SGR2HTML a2h;
+    SECTION("LF only") {
+        // LF is converted to <br />
+        CHECK(a2h.simpleParse("hello\nworld") == body_start + "hello<br />world" + body_end);
+    }
+    SECTION("CRLF") {
+        // CR is ignored, LF converted to <br /> (CRLF becomes single <br />)
+        CHECK(a2h.simpleParse("hello\r\nworld") == body_start + "hello<br />world" + body_end);
+    }
+    SECTION("CR alone") {
+        // CR is silently ignored (no output)
+        CHECK(a2h.simpleParse("hello\rworld") == body_start + "helloworld" + body_end);
     }
 }

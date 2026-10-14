@@ -1,6 +1,12 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.21)
 
 project(ANSI_SGR2HTML VERSION 1.0.0 DESCRIPTION "Basic ANSI Select Graphic Rendition Control Sequence to HTML library.")
+
+if(PROJECT_IS_TOP_LEVEL)
+    option(ANSI_SGR2HTML_BUILD_TESTS "Build tests" ON)
+else()
+    option(ANSI_SGR2HTML_BUILD_TESTS "Build tests" OFF)
+endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -17,14 +23,6 @@ add_library(ANSIEsc2HTML_static STATIC
     "${LIBRARY_SRCS}"
 )
 
-add_executable(tests
-    EXCLUDE_FROM_ALL
-    tests/catch.hpp
-    tests/tests.cpp
-)
-
-target_link_libraries(tests ANSIEsc2HTML_static)
-
 #target_compile_definitions(tests PRIVATE CATCH_CONFIG_ENABLE_BENCHMARKING)
 #set(RELEASE_OPTIONS
 #    -O3
@@ -32,20 +30,25 @@ target_link_libraries(tests ANSIEsc2HTML_static)
 #target_compile_options(ANSIEsc2HTML_static PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")
 #target_compile_options(tests PUBLIC "$<$<CONFIG:RELEASE>:${RELEASE_OPTIONS}>")
 
-add_dependencies(tests ANSIEsc2HTML_static)
-
-set_target_properties(ANSIEsc2HTML ANSIEsc2HTML_static tests PROPERTIES
+set_target_properties(ANSIEsc2HTML ANSIEsc2HTML_static PROPERTIES
     PUBLIC_HEADER src/ansi_esc2html.h
-#     VERSION ${PROJECT_VERSION}
-#     SOVERSION 0
     CXX_STANDARD 17
     CXX_EXTENSIONS OFF
 )
 
-# locate Catch2 scripts for CMake
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tests)
-include(CTest)
-include(Catch)
+if(ANSI_SGR2HTML_BUILD_TESTS)
+    add_executable(tests
+        tests/catch.hpp
+        tests/tests.cpp
+    )
+    target_link_libraries(tests PRIVATE ANSIEsc2HTML_static)
 
-# register Catch2 tests as individual CTest tests
-catch_discover_tests(tests)
+    set_target_properties(tests PROPERTIES
+        CXX_STANDARD 17
+        CXX_EXTENSIONS OFF
+    )
+
+    list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/tests)
+    include(Catch)
+    catch_discover_tests(tests)
+endif()

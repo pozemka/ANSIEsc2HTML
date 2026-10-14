@@ -149,8 +149,10 @@ std::string ANSI_SGR2HTML::impl::parse(std::string_view raw_data, bool strict)
         if(esc_set || csi_set) {                            // no valid CSI symbols but ESC or CSI set
             continue;
         }
-        if ('\n' == c) {                                    // LF 0x0a
-            //FIXME: what about CR and CRLF sequence?
+        if ('\r' == c) {                                   // CR 0x0d - silently ignore
+            continue;
+        }
+        if ('\n' == c) {                                   // LF 0x0a
             out_s.append("<br />");
             continue;
         }
