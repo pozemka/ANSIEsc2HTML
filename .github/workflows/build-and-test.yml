@@ -12,23 +12,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v4
         
         - name: making build directory
           run: mkdir build
             
         - name: cmake configure
-          run: cmake -DCMAKE_BUILD_TYPE=Release ..
-          working-directory: build
+          run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DANSI_SGR2HTML_BUILD_TESTS=ON
         
         - name: cmake build
-          run: cmake --build .
-          working-directory: build
+          run: cmake --build build --config Release
 
         - name: cmake build tests
-          run: cmake --build . --target tests
-          working-directory: build
+          run: cmake --build build --config Release --target tests
 
         - name: cmake test
-          run: ctest --output-on-failure
-          working-directory: build
+          run: ctest --test-dir build --output-on-failure -V
