@@ -38,7 +38,6 @@ set_target_properties(ANSIEsc2HTML ANSIEsc2HTML_static PROPERTIES
 
 if(ANSI_SGR2HTML_BUILD_TESTS)
     add_executable(tests
-        tests/catch.hpp
         tests/tests.cpp
     )
     target_link_libraries(tests PRIVATE ANSIEsc2HTML_static)
